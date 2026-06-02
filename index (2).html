@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Site Sign-In">
+<meta name="theme-color" content="#16181d">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23ffbf2e'/%3E%3Cpath d='M55 92 l22 22 l48 -52' stroke='%2316181d' stroke-width='16' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Site Sign-In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<style>
+  :root{
+    --bg:#16181d; --panel:#1f232b; --panel-2:#262b34; --line:#333a45;
+    --ink:#f3f5f8; --muted:#97a0ad; --amber:#ffbf2e; --amber-deep:#e9a200;
+    --good:#37c98a; --radius:16px; --tap:54px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Hanken Grotesk",-apple-system,system-ui,sans-serif;
+    font-size:16px;line-height:1.45;
+    padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom));
+    background-image:repeating-linear-gradient(45deg, rgba(255,191,46,0.04) 0 14px, transparent 14px 28px);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:18px 16px 0;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .badge{width:46px;height:46px;border-radius:12px;flex:0 0 auto;background:var(--amber);color:#16181d;
+    display:flex;align-items:center;justify-content:center;font-family:"Archivo";font-weight:800;font-size:22px;
+    box-shadow:0 6px 18px rgba(255,191,46,.25);}
+  header h1{font-family:"Archivo";font-weight:800;font-size:21px;letter-spacing:.3px;margin:0;line-height:1;text-transform:uppercase;}
+  header p{margin:3px 0 0;color:var(--muted);font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+  .card h2{font-family:"Archivo";font-weight:700;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:0 0 12px;}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:0 0 5px;letter-spacing:.3px;}
+  input,textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;color:var(--ink);
+    font-size:16px;padding:0 14px;font-family:inherit;margin-bottom:12px;outline:none;}
+  input{height:var(--tap);}
+  textarea{min-height:90px;padding:12px 14px;line-height:1.4;resize:vertical;}
+  input:focus,textarea:focus,select:focus{border-color:var(--amber);}
+  select{width:100%;height:var(--tap);background:var(--panel-2);border:1px solid var(--line);border-radius:12px;color:var(--ink);
+    font-size:16px;padding:0 14px;font-family:inherit;margin-bottom:12px;outline:none;-webkit-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2397a0ad' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .btn{width:100%;min-height:var(--tap);border:none;border-radius:12px;cursor:pointer;font-family:"Archivo";font-weight:700;
+    font-size:15px;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-amber{background:var(--amber);color:#16181d;box-shadow:0 6px 18px rgba(255,191,46,.22);}
+  .btn-amber:active{background:var(--amber-deep);}
+  .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
+  .pick{display:flex;flex-direction:column;gap:9px;}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer;min-height:var(--tap);}
+  .opt.sel{border-color:var(--amber);background:rgba(255,191,46,.10);}
+  .opt .name{font-weight:600;}
+  .opt .sub{font-size:12px;color:var(--muted);}
+  .check{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+  .opt.sel .check{border-color:var(--amber);background:var(--amber);color:#16181d;font-weight:800;font-size:13px;}
+  .field{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
+  .field:last-child{border-bottom:none;}
+  .field .k{font-size:12px;color:var(--muted);letter-spacing:.3px;}
+  .field .v{font-weight:600;font-size:15px;text-align:right;flex:1;word-break:break-word;}
+  .copy{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:8px 12px;
+    font-size:12px;cursor:pointer;font-family:"Archivo";font-weight:700;letter-spacing:.4px;flex:0 0 auto;}
+  .copy.done{background:var(--good);color:#0c2018;border-color:var(--good);}
+  .list-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:9px;}
+  .list-item .meta{min-width:0;}
+  .list-item .meta .t{font-weight:600;}
+  .list-item .meta .s{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;}
+  .del{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:6px;}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(22,24,29,.92);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);display:flex;max-width:520px;margin:0 auto;padding-bottom:env(safe-area-inset-bottom);}
+  nav button{flex:1;background:none;border:none;color:var(--muted);padding:11px 4px 14px;cursor:pointer;font-family:"Archivo";
+    font-weight:700;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  nav button .ic{font-size:19px;line-height:1;}
+  nav button.on{color:var(--amber);}
+  .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:14px 0;}
+  .hint{font-size:12.5px;color:var(--muted);margin:-2px 0 12px;line-height:1.4;}
+  .qc{color:var(--amber);font-family:"Archivo";font-weight:700;letter-spacing:.3px;}
+  .toast{position:fixed;bottom:108px;left:50%;transform:translateX(-50%);background:var(--ink);color:#16181d;font-weight:700;
+    font-size:13px;padding:10px 18px;border-radius:30px;opacity:0;transition:opacity .25s;z-index:20;font-family:"Archivo";}
+  .toast.show{opacity:1;}
+  a.btn{text-decoration:none;}
+  .loading{text-align:center;padding:60px 0;color:var(--muted);}
+  .mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mini .btn{min-height:46px;font-size:12px;}
+  .hide{display:none!important;}
+  .scanner{position:fixed;inset:0;z-index:50;background:#000;display:flex;align-items:center;justify-content:center;}
+  .scanner video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+  .scan-frame{position:relative;z-index:2;width:64vw;max-width:300px;aspect-ratio:1;border:3px solid var(--amber);
+    border-radius:18px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5);}
+  .scan-hint{position:absolute;z-index:3;bottom:130px;left:0;right:0;text-align:center;color:#fff;font-family:"Archivo";
+    font-weight:700;letter-spacing:.5px;text-shadow:0 1px 6px #000;}
+  #scan-cancel{position:absolute;z-index:3;bottom:46px;left:50%;transform:translateX(-50%);width:auto;padding:0 34px;}
+  .form-overlay{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);}
+  .form-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel);}
+  .form-x{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);width:38px;height:38px;border-radius:10px;font-size:16px;flex:0 0 auto;cursor:pointer;}
+  .form-ttl{flex:1;font-family:"Archivo";font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .form-ext-link{color:var(--amber);font-family:"Archivo";font-weight:700;font-size:12px;text-decoration:none;flex:0 0 auto;letter-spacing:.4px;}
+  .form-chips{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch;}
+  .chip{flex:0 0 auto;background:var(--amber);color:#16181d;border:none;border-radius:20px;padding:9px 16px;font-family:"Archivo";font-weight:700;font-size:13px;letter-spacing:.3px;cursor:pointer;}
+  .chip.done{background:var(--good);color:#0c2018;}
+  .chip-empty{color:var(--muted);font-size:13px;padding:6px;}
+  .form-body{flex:1;display:flex;flex-direction:column;min-height:0;background:#fff;}
+  .form-frame{flex:1;width:100%;border:none;background:#fff;}
+  .form-note{padding:10px 14px;font-size:12px;color:var(--muted);background:var(--panel);border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">✓</div>
+    <div><h1>Site Sign-In</h1><p>Your visitor sign-in shortcuts</p></div>
+  </header>
+  <div id="app"><div class="loading">Loading…</div></div>
+</div>
+
+<nav id="nav">
+  <button data-tab="signin" class="on"><span class="ic">⬆</span>Sign in</button>
+  <button data-tab="me"><span class="ic">👤</span>My details</button>
+  <button data-tab="sites"><span class="ic">📍</span>Sites</button>
+  <button data-tab="people"><span class="ic">🧑‍🤝‍🧑</span>People</button>
+</nav>
+<div id="form-overlay" class="form-overlay hide">
+  <div class="form-bar">
+    <button id="form-close" class="form-x">✕</button>
+    <div id="form-title" class="form-ttl">Sign-in</div>
+    <a id="form-ext" class="form-ext-link" href="#" target="_blank" rel="noopener">Safari ↗</a>
+  </div>
+  <div id="form-chips" class="form-chips"></div>
+  <div class="form-body">
+    <iframe id="form-frame" class="form-frame" referrerpolicy="no-referrer"></iframe>
+    <div class="form-note">Tap a yellow chip to copy a detail, then tap the matching field and paste. If the form stays blank, Donesafe is blocking embedding — tap “Safari ↗” to open it in a tab; your copied details still paste fine there.</div>
+  </div>
+</div>
+<div id="scanner" class="scanner hide">
+  <video id="scan-video" playsinline muted></video>
+  <div class="scan-frame"></div>
+  <div class="scan-hint">Point at the site's QR code</div>
+  <button id="scan-cancel" class="btn btn-amber">Cancel</button>
+</div>
+<canvas id="scan-canvas" class="hide"></canvas>
+<div id="toast" class="toast"></div>
+
+<script>
+const STORE_KEY = "signin_app_data_v1";
+
+let data = { profile:{name:"",company:"",phone:"",email:"",rego:""}, sites:[], people:[] };
+let tab="signin", chosenSite=null, chosenPerson=null;
+const uid=()=>Math.random().toString(36).slice(2,9);
+const $=s=>document.querySelector(s);
+
+function load(){
+  try{ const raw=localStorage.getItem(STORE_KEY); if(raw) data=JSON.parse(raw); }catch(e){}
+  if(!data.sites) data.sites=[];
+  if(!data.people) data.people=[];
+  if(!data.profile) data.profile={name:"",company:"",phone:"",email:"",rego:""};
+  render();
+}
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }catch(e){ toast("Couldn't save"); } }
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1600); }
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+async function copy(text,btn){
+  try{ await navigator.clipboard.writeText(text);
+    if(btn){ const o=btn.textContent; btn.textContent="Copied"; btn.classList.add("done");
+      setTimeout(()=>{ btn.textContent=o; btn.classList.remove("done"); },1200);} }
+  catch(e){ toast("Copy not allowed"); }
+}
+function siteName(id){ const s=data.sites.find(x=>x.id===id); return s?s.name:"All sites"; }
+
+function render(){
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  const el=$("#app");
+  el.innerHTML = tab==="signin"?viewSignin():tab==="me"?viewMe():tab==="sites"?viewSites():viewPeople();
+  bind();
+}
+
+function viewSignin(){
+  const p=data.profile;
+  const sites=data.sites.length?data.sites.map(s=>`<div class="opt ${chosenSite===s.id?'sel':''}" data-site="${s.id}">
+    <div><div class="name">${esc(s.name)}</div></div><div class="check">${chosenSite===s.id?'✓':''}</div></div>`).join("")
+    :`<div class="empty">No sites yet — open the Sites tab to scan a QR code or paste a link.</div>`;
+  let peopleHtml;
+  if(!chosenSite){ peopleHtml=`<div class="empty">Pick a site above to see who's there.</div>`; }
+  else{
+    const list=data.people.filter(pn=>!pn.siteId||pn.siteId===chosenSite);
+    peopleHtml=list.length?list.map(pn=>`<div class="opt ${chosenPerson===pn.id?'sel':''}" data-person="${pn.id}">
+      <div><div class="name">${esc(pn.name)}</div>${pn.note?`<div class="sub">${esc(pn.note)}</div>`:''}</div>
+      <div class="check">${chosenPerson===pn.id?'✓':''}</div></div>`).join("")
+      :`<div class="empty">No people for this site yet — add them in People.</div>`;
+  }
+  const site=data.sites.find(s=>s.id===chosenSite);
+  const person=data.people.find(x=>x.id===chosenPerson);
+  const d=(k,v)=> v?`<div class="field"><span class="k">${k}</span><span class="v">${esc(v)}</span><button class="copy" data-copy="${esc(v)}">Copy</button></div>`:"";
+  return `
+  <div class="card"><h2>1 · Which site?</h2><div class="pick">${sites}</div></div>
+  <div class="card"><h2>2 · Who are you seeing?</h2><div class="pick">${peopleHtml}</div></div>
+  <div class="card"><h2>3 · Your details (tap to copy)</h2>
+    ${d("Name",p.name)}${d("Company",p.company)}${d("Phone",p.phone)}${d("Email",p.email)}${d("Vehicle rego",p.rego)}
+    ${person?d("Visiting",person.name):""}
+    ${(!p.name&&!p.company)?`<div class="empty">Fill in your details in My details first.</div>`:""}
+  </div>
+  ${site?`<a class="btn btn-amber" href="${esc(site.url)}" target="_blank" rel="noopener">Open ${esc(site.name)} sign-in form →</a>`
+        :`<button class="btn btn-ghost" disabled>Pick a site above to continue</button>`}
+  <div style="height:8px"></div>`;
+}
+
+function viewMe(){
+  const p=data.profile;
+  const codes=[[";name","Full name",p.name],[";co","Company",p.company],[";ph","Phone",p.phone],[";em","Email",p.email],[";rego","Vehicle rego",p.rego]];
+  const qrows=codes.filter(c=>c[2]).map(c=>`<div class="field"><span class="k"><span class="qc">${c[0]}</span> · ${c[1]}</span><span class="v">${esc(c[2])}</span><button class="copy" data-copy="${esc(c[2])}">Copy</button></div>`).join("");
+  return `
+  <div class="card"><h2>My details</h2>
+    <div class="hint">Stored privately on this iPhone, in this app. You'll copy these into the sign-in form with one tap.</div>
+    <label>Full name</label><input id="f-name" value="${esc(p.name)}" placeholder="Jane Smith">
+    <label>Company / employer</label><input id="f-company" value="${esc(p.company)}" placeholder="Your company">
+    <div class="row2"><div><label>Phone</label><input id="f-phone" value="${esc(p.phone)}" inputmode="tel" placeholder="04xx xxx xxx"></div>
+    <div><label>Vehicle rego</label><input id="f-rego" value="${esc(p.rego)}" placeholder="ABC123"></div></div>
+    <label>Email</label><input id="f-email" value="${esc(p.email)}" inputmode="email" placeholder="jane@example.com">
+    <button class="btn btn-amber" id="save-me">Save details</button>
+  </div>
+  <div class="card"><h2>Quick-type codes</h2>
+    <div class="hint">Set these up once: Settings → General → Keyboard → Text Replacement → +. Put the code in “Shortcut” and the value in “Phrase”. Then typing the code in any form (including Donesafe) expands it instantly — no copy-paste. Tap Copy to grab each value.</div>
+    ${qrows||`<div class="empty">Fill in your details above first.</div>`}
+  </div>
+  <div class="card"><h2>Backup &amp; restore</h2>
+    <div class="hint">Your data lives only on this device. Copy a backup somewhere safe (a note/email). To move to a new phone, paste it below and restore.</div>
+    <button class="btn btn-ghost" id="backup">Copy backup to clipboard</button>
+    <div style="height:10px"></div>
+    <button class="btn btn-ghost" id="email-backup">✉️ Email backup to myself</button>
+    <div style="height:10px"></div>
+    <label>Restore from a backup</label>
+    <textarea id="restore-box" placeholder="Paste your backup text here…"></textarea>
+    <button class="btn btn-ghost" id="restore">Restore</button>
+  </div>`;
+}
+
+function viewSites(){
+  const items=data.sites.map(s=>`<div class="list-item">
+    <div class="meta"><div class="t">${esc(s.name)}</div><div class="s">${esc(s.url)}</div></div>
+    <button class="del" data-delsite="${s.id}">✕</button></div>`).join("");
+  return `
+  <div class="card"><h2>My sites</h2>
+    <div class="hint">Add a site for each place you visit. Get its link by scanning the QR code at that gate/reception once, then copy the address from your browser and paste it here.</div>
+    ${items||`<div class="empty">No sites yet.</div>`}</div>
+  <div class="card"><h2>Add a site</h2>
+    <button class="btn btn-ghost" id="scan-site">📷 Scan site QR code</button>
+    <div class="hint" style="margin-top:10px">Scanning fills the link automatically — just add a name. Or paste a link manually below.</div>
+    <label>Site name</label><input id="s-name" placeholder="e.g. Laverton Depot">
+    <label>Sign-in link (URL)</label><input id="s-url" placeholder="Paste or scan the site's sign-in link">
+    <button class="btn btn-amber" id="add-site">Add site</button></div>`;
+}
+
+function viewPeople(){
+  const items=data.people.map(pn=>`<div class="list-item">
+    <div class="meta"><div class="t">${esc(pn.name)}</div><div class="s">📍 ${esc(siteName(pn.siteId))}${pn.note?' · '+esc(pn.note):''}</div></div>
+    <button class="del" data-delperson="${pn.id}">✕</button></div>`).join("");
+  const opts=`<option value="">All sites</option>`+data.sites.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  return `
+  <div class="card"><h2>People I visit</h2>
+    <div class="hint">Link each person to a site so they appear automatically when you pick that site. Choose "All sites" for someone you see everywhere.</div>
+    ${items||`<div class="empty">No people yet.</div>`}</div>
+  <div class="card"><h2>Add a person</h2>
+    <label>Name</label><input id="p-name" placeholder="e.g. Mark Taylor">
+    <label>At which site?</label><select id="p-site">${opts}</select>
+    <label>Note (role — optional)</label><input id="p-note" placeholder="e.g. Site Manager">
+    <button class="btn btn-amber" id="add-person">Add person</button></div>`;
+}
+
+function bind(){
+  document.querySelectorAll("[data-site]").forEach(n=>n.onclick=()=>{
+    chosenSite=n.dataset.site;
+    const ok=data.people.some(p=>p.id===chosenPerson&&(!p.siteId||p.siteId===chosenSite));
+    if(!ok) chosenPerson=null; render();
+  });
+  document.querySelectorAll("[data-person]").forEach(n=>n.onclick=()=>{ chosenPerson=(chosenPerson===n.dataset.person?null:n.dataset.person); render(); });
+  document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copy(b.dataset.copy,b));
+
+  const sm=$("#save-me");
+  if(sm) sm.onclick=()=>{ data.profile={name:$("#f-name").value.trim(),company:$("#f-company").value.trim(),
+    phone:$("#f-phone").value.trim(),email:$("#f-email").value.trim(),rego:$("#f-rego").value.trim()};
+    save(); toast("Details saved"); tab="signin"; render(); };
+
+  const bk=$("#backup");
+  if(bk) bk.onclick=()=>copy(JSON.stringify(data),bk);
+  const eb=$("#email-backup");
+  if(eb) eb.onclick=()=>{
+    const to=encodeURIComponent(data.profile.email||"");
+    const subj=encodeURIComponent("Site Sign-In backup");
+    const body=encodeURIComponent("Keep this safe. To restore later, copy everything below the line and paste it into the app's Restore box.\n\n-----\n"+JSON.stringify(data));
+    window.location.href=`mailto:${to}?subject=${subj}&body=${body}`;
+  };
+  const rs=$("#restore");
+  if(rs) rs.onclick=()=>{ try{ const o=JSON.parse($("#restore-box").value.trim());
+    if(o&&o.profile&&o.sites){ data=o; save(); toast("Restored"); tab="signin"; render(); } else toast("That doesn't look right"); }
+    catch(e){ toast("Couldn't read that backup"); } };
+
+  const of=$("#open-form");
+  if(of) of.onclick=openForm;
+  const ss=$("#scan-site");
+  if(ss) ss.onclick=openScanner;
+  const as=$("#add-site");
+  if(as) as.onclick=()=>{ const name=$("#s-name").value.trim(),url=$("#s-url").value.trim();
+    if(!name||!url){ toast("Add a name and link"); return; } data.sites.push({id:uid(),name,url}); save(); render(); };
+  document.querySelectorAll("[data-delsite]").forEach(b=>b.onclick=()=>{ data.sites=data.sites.filter(s=>s.id!==b.dataset.delsite);
+    if(chosenSite===b.dataset.delsite)chosenSite=null; save(); render(); });
+
+  const ap=$("#add-person");
+  if(ap) ap.onclick=()=>{ const name=$("#p-name").value.trim(),note=$("#p-note").value.trim(),siteId=$("#p-site")?$("#p-site").value:"";
+    if(!name){ toast("Add a name"); return; } data.people.push({id:uid(),name,note,siteId}); save(); render(); };
+  document.querySelectorAll("[data-delperson]").forEach(b=>b.onclick=()=>{ data.people=data.people.filter(p=>p.id!==b.dataset.delperson);
+    if(chosenPerson===b.dataset.delperson)chosenPerson=null; save(); render(); });
+}
+
+let scanStream=null, scanRAF=null;
+async function openScanner(){
+  if(typeof jsQR==="undefined"){ toast("Scanner needs internet to load"); return; }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ toast("Camera not supported here"); return; }
+  const v=$("#scan-video");
+  try{
+    scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});
+    v.srcObject=scanStream; await v.play();
+    $("#scanner").classList.remove("hide");
+    scanRAF=requestAnimationFrame(tick);
+  }catch(e){ toast("Camera blocked — allow it in Settings"); }
+}
+function tick(){
+  const v=$("#scan-video"), c=$("#scan-canvas");
+  if(v.readyState>=2 && v.videoWidth){
+    c.width=v.videoWidth; c.height=v.videoHeight;
+    const ctx=c.getContext("2d",{willReadFrequently:true});
+    ctx.drawImage(v,0,0,c.width,c.height);
+    try{
+      const img=ctx.getImageData(0,0,c.width,c.height);
+      const code=jsQR(img.data,img.width,img.height,{inversionAttempts:"dontInvert"});
+      if(code && code.data){ onScan(code.data); return; }
+    }catch(e){}
+  }
+  scanRAF=requestAnimationFrame(tick);
+}
+function onScan(text){
+  stopScanner();
+  tab="sites"; render();
+  const f=$("#s-url"); if(f) f.value=text.trim();
+  const n=$("#s-name"); if(n) n.focus();
+  toast("QR captured — add a name");
+}
+function stopScanner(){
+  if(scanRAF){ cancelAnimationFrame(scanRAF); scanRAF=null; }
+  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
+  const v=$("#scan-video"); if(v) v.srcObject=null;
+  $("#scanner").classList.add("hide");
+}
+$("#scan-cancel").onclick=stopScanner;
+
+function openForm(){
+  const site=data.sites.find(s=>s.id===chosenSite); if(!site) return;
+  const p=data.profile, person=data.people.find(x=>x.id===chosenPerson);
+  const chips=[["Name",p.name],["Company",p.company],["Phone",p.phone],["Email",p.email],["Rego",p.rego]];
+  if(person) chips.push(["Visiting",person.name]);
+  const valid=chips.filter(c=>c[1]);
+  $("#form-chips").innerHTML = valid.length
+    ? valid.map(c=>`<button class="chip" data-copy="${esc(c[1])}">${c[0]}</button>`).join("")
+    : `<span class="chip-empty">Add your details in My details to get copy chips</span>`;
+  $("#form-chips").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copy(b.dataset.copy,b));
+  $("#form-title").textContent=site.name;
+  $("#form-ext").href=site.url;
+  $("#form-frame").src=site.url;
+  $("#form-overlay").classList.remove("hide");
+}
+function closeForm(){ $("#form-overlay").classList.add("hide"); $("#form-frame").src="about:blank"; }
+$("#form-close").onclick=closeForm;
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{ tab=b.dataset.tab; render(); });
+load();
+</script>
+</body>
+</html>
