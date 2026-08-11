@@ -224,7 +224,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const STORE_KEY = "door_dashboard_v5";
+const STORE_KEY = "door_dashboard_v6";
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 
@@ -305,6 +305,17 @@ function relTime(iso){
   const h = Math.floor(m/60);
   return h+"h "+(m%60)+"m ago";
 }
+function formatDuration(ms){
+  if(ms == null || isNaN(ms)) return "";
+  const totalMin = Math.max(0, Math.round(ms/60000));
+  const h = Math.floor(totalMin/60), m = totalMin%60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+function liveDayTotalMs(p){
+  let ms = p.totalMs || 0;
+  if(p.presence === "in" && p.sessionStart) ms += Date.now() - new Date(p.sessionStart).getTime();
+  return ms;
+}
 
 function processEvents(events){
   // events must be in ascending chronological order, and all from "today"
@@ -322,20 +333,28 @@ function processEvents(events){
     let direction = null;
     if(matchWords(desc, cfg.outWords)) direction = "out";
     else if(matchWords(desc, cfg.inWords)) direction = "in";
+    const prev = people[who];
+    const wasIn = prev && prev.presence === "in";
+    let totalMs = prev ? (prev.totalMs || 0) : 0;
+    let sessionStart = prev ? prev.sessionStart : null;
     if(role === "toggle"){
       if(!direction) direction = whereDirection(where);
-      if(!direction){
-        const prev = people[who];
-        direction = (prev && prev.presence === "in") ? "out" : "in";
+      if(!direction) direction = wasIn ? "out" : "in";
+      if(direction === "in"){
+        if(!wasIn) sessionStart = when; // new session; a duplicate "in" keeps the running one
+      } else {
+        if(wasIn && sessionStart) totalMs += new Date(when) - new Date(sessionStart);
+        sessionStart = null;
       }
       people[who] = {
         presence: direction,
         location: direction === "in" ? (locLabel || "Entry") : "",
-        time: when, door: displayName
+        time: when, door: displayName, totalMs, sessionStart
       };
     } else {
       // entry-only: badging here means they're on-site, regardless of prior state
-      people[who] = { presence: "in", location: locLabel || displayName, time: when, door: displayName };
+      if(!wasIn) sessionStart = when;
+      people[who] = { presence: "in", location: locLabel || displayName, time: when, door: displayName, totalMs, sessionStart };
     }
   }
   if(events.length){
@@ -428,7 +447,7 @@ function renderDashboard(){
     const rows = groups[g].sort((a,b)=>a[0].localeCompare(b[0]));
     return `<div class="loc-group">
       <h3>${esc(g)} (${rows.length})</h3>
-      <div class="plist">${rows.map(([n,p])=>`<div class="prow"><div class="n">${esc(n)}</div><div class="t">via ${esc(p.door)} · ${relTime(p.time)}</div></div>`).join("")}</div>
+      <div class="plist">${rows.map(([n,p])=>`<div class="prow"><div class="n">${esc(n)}</div><div class="t">via ${esc(p.door)} · ${formatDuration(liveDayTotalMs(p))} today · ${relTime(p.time)}</div></div>`).join("")}</div>
     </div>`;
   }).join("");
 }
@@ -450,7 +469,7 @@ function renderDetails(){
     return `<div class="pcard ${p.presence}">
       <div class="name">${esc(n)}</div>
       <div class="badge2">${label}</div>
-      <div class="meta">Via ${esc(p.door)}${loc} · ${relTime(p.time)}</div>
+      <div class="meta">Via ${esc(p.door)}${loc} · ${formatDuration(liveDayTotalMs(p))} today · ${relTime(p.time)}</div>
     </div>`;
   }).join("");
 }
@@ -558,6 +577,7 @@ bind();
 switchTab("dashboard");
 renderAll();
 schedulePoll();
+setInterval(renderAll, 30000); // keep "today" durations and relative times ticking between network polls
 if(cfg.baseUrl) fetchLive();
 </script>
 </body>
