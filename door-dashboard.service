@@ -1,0 +1,15 @@
+[Unit]
+Description=Door access in/out dashboard proxy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/site-signin
+ExecStart=/usr/bin/python3 /home/pi/site-signin/proxy.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

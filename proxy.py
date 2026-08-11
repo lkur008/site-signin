@@ -11,8 +11,13 @@ terminal, never stored in the browser) to get a session, attaches that
 session to every forwarded request, and automatically re-logs-in if the
 session expires (Inception expires sessions after 10 minutes idle).
 
-Usage:
-    python3 proxy.py http://<inception-controller-ip> [username]
+First run (interactive):
+    python3 proxy.py http://<inception-controller-ip>
+You'll be prompted for your Inception username/password, and offered
+the option to save them to a local config file (chmod 600, outside the
+git repo by default) so future runs — e.g. from a systemd service on
+boot — don't need a terminal to prompt into:
+    python3 proxy.py
 
 Then open:
     http://localhost:8787/door-dashboard.html
@@ -21,6 +26,7 @@ In the dashboard's Settings, set "Controller base URL" to
 http://localhost:8787 (not the Inception IP) — no token/password is
 ever entered in the dashboard itself.
 """
+import argparse
 import getpass
 import json
 import os
@@ -33,6 +39,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 PORT = 8787
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_CONFIG_PATH = os.path.expanduser("~/.door-dashboard-config.json")
 UNVERIFIED_SSL = ssl._create_unverified_context()
 EMPTY_GUID = "00000000-0000-0000-0000-000000000000"
 
@@ -124,17 +131,49 @@ def make_handler(target):
     return ProxyHandler
 
 
+def load_config(path):
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
+
+
+def save_config(path, target, username, password):
+    with open(path, "w") as f:
+        json.dump({"target": target, "username": username, "password": password}, f)
+    os.chmod(path, 0o600)
+
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 proxy.py http://<inception-controller-ip> [username]")
-        sys.exit(1)
-    target = sys.argv[1].rstrip("/")
-    creds["username"] = sys.argv[2] if len(sys.argv) > 2 else input("Inception username: ")
-    creds["password"] = getpass.getpass("Inception password: ")
+    parser = argparse.ArgumentParser(description="Local proxy + static server for the door-access dashboard.")
+    parser.add_argument("target", nargs="?", help="http://<inception-ip> (only needed the first run, or when no config is saved)")
+    parser.add_argument("--config", default=DEFAULT_CONFIG_PATH, help=f"Path to saved credentials (default: {DEFAULT_CONFIG_PATH})")
+    args = parser.parse_args()
+
+    saved = load_config(args.config)
+    if saved:
+        target = saved["target"].rstrip("/")
+        creds["username"] = saved["username"]
+        creds["password"] = saved["password"]
+        print(f"Loaded saved config from {args.config}")
+    else:
+        if not args.target:
+            print(f"No saved config at {args.config} — run once with the controller URL:")
+            print("    python3 proxy.py http://<inception-controller-ip>")
+            sys.exit(1)
+        target = args.target.rstrip("/")
+        creds["username"] = input("Inception username: ")
+        creds["password"] = getpass.getpass("Inception password: ")
 
     print("Logging in to " + target + " ...")
     login(target)
     print("Login OK.")
+
+    if not saved and sys.stdin.isatty():
+        answer = input(f"Save these to {args.config} for automatic startup next time (e.g. from systemd)? [y/N] ").strip().lower()
+        if answer == "y":
+            save_config(args.config, target, creds["username"], creds["password"])
+            print(f"Saved to {args.config} (permissions restricted to your user).")
 
     handler = partial(make_handler(target), directory=SCRIPT_DIR)
     print(f"Proxying /api/* to {target}")
