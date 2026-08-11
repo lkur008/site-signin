@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#16181d">
+<meta name="theme-color" content="#f5f6f8">
 <title>Who's In / Who's Out</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#16181d; --panel:#1f232b; --panel-2:#262b34; --line:#333a45;
-    --ink:#f3f5f8; --muted:#97a0ad; --amber:#ffbf2e; --amber-deep:#e9a200;
-    --good:#37c98a; --bad:#e9556b; --radius:16px;
+    --bg:#f5f6f8; --panel:#ffffff; --panel-2:#eef0f3; --line:#dde1e6;
+    --ink:#16181d; --muted:#667085; --amber:#ffbf2e; --amber-deep:#b57900;
+    --good:#1f9d6a; --bad:#d9364f; --radius:16px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
@@ -48,7 +48,7 @@
   .print-btn{background:var(--amber);color:#16181d;border:none;}
   .loc-group{margin-bottom:18px;}
   .loc-group h3{font-family:"Archivo";font-weight:800;font-size:13.5px;letter-spacing:.6px;text-transform:uppercase;
-    color:var(--amber);margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);}
+    color:var(--amber-deep);margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);}
   .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
   .prow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
   .prow .n{font-weight:700;font-size:14.5px;}
@@ -83,10 +83,10 @@
   .btn-amber{background:var(--amber);color:#16181d;}
   .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
   .hint{font-size:12px;color:var(--muted);margin:-3px 0 12px;line-height:1.5;}
-  code{background:#0e1014;padding:1px 5px;border-radius:4px;font-size:11px;}
+  code{background:#0e1014;color:#c9d1db;padding:1px 5px;border-radius:4px;font-size:11px;}
   pre{background:#0e1014;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;overflow:auto;
     max-height:280px;white-space:pre-wrap;word-break:break-word;color:#c9d1db;}
-  .banner{background:rgba(233,85,107,.12);border:1px solid var(--bad);color:#ffc9d0;border-radius:10px;padding:10px 12px;
+  .banner{background:rgba(233,85,107,.12);border:1px solid var(--bad);color:#8a1f30;border-radius:10px;padding:10px 12px;
     font-size:12.5px;margin-bottom:12px;line-height:1.5;}
   .doorlist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
   .doorrow{display:grid;grid-template-columns:1fr 1fr 110px 100px 30px;gap:6px;align-items:center;background:var(--panel-2);
@@ -95,7 +95,7 @@
   .doorrow button{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
   .doorrow-labels{display:grid;grid-template-columns:1fr 1fr 110px 100px 30px;gap:6px;font-size:10px;color:var(--muted);
     text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;padding:0 8px;}
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#16181d;font-weight:700;
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#16181d;color:#f3f5f8;font-weight:700;
     font-size:13px;padding:10px 18px;border-radius:30px;opacity:0;transition:opacity .25s;z-index:70;font-family:"Archivo";}
   .toast.show{opacity:1;}
   .print-header{display:none;}
