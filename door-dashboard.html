@@ -95,7 +95,7 @@
 
   <div class="status-bar">
     <span class="dot" id="conn-dot"></span>
-    <span id="conn-text">Not connected — open Settings to enter your controller URL and API token.</span>
+    <span id="conn-text">Not connected — open Settings and point this at the local proxy's URL.</span>
     <div class="spacer"></div>
     <span id="poll-text"></span>
   </div>
@@ -127,12 +127,10 @@
 
     <div class="card">
       <h2>Controller connection</h2>
-      <div class="hint">Uses the Inception REST API: <code>GET /api/v1/control/user/summary</code> for the roster, then <code>GET /api/v1/control/user/{id}/state</code> per user for their current location (<code>Info1</code>). Create/edit an API user in Inception's Manage Users page, set its Web Page Profile to "REST Web API User", and generate a User API Token under Credentials there.</div>
-      <div class="hint"><b>Inception doesn't send CORS headers</b>, so this page can't call it directly — you'll get "Failed to fetch". Run the included <code>proxy.py</code> on a machine on the same network (<code>python3 proxy.py http://&lt;inception-ip&gt;</code>), open <code>http://localhost:8787/door-dashboard.html</code> instead of this file directly, and set the Controller base URL below to <code>http://localhost:8787</code> — the proxy forwards everything to the real controller.</div>
+      <div class="hint">Uses the Inception REST API: <code>GET /api/v1/control/user/summary</code> for the roster, then <code>GET /api/v1/control/user/{id}/state</code> per user for their current location (<code>Info1</code>).</div>
+      <div class="hint"><b>Inception doesn't send CORS headers</b>, so this page can't call it directly — you'll get "Failed to fetch". Run the included <code>proxy.py</code> on a machine on the same network: <code>python3 proxy.py http://&lt;inception-ip&gt;</code>, which will prompt for your Inception username/password in the terminal (never entered here — nothing sensitive is stored in this page). Then open <code>http://localhost:8787/door-dashboard.html</code> instead of this file directly, and set the Controller base URL below to <code>http://localhost:8787</code> — the proxy handles login and forwards everything to the real controller.</div>
       <label>Controller base URL</label>
       <input id="cfg-baseurl" placeholder="http://localhost:8787">
-      <label>API Token</label>
-      <input id="cfg-token" placeholder="Paste the User API Token here">
       <label>Poll every (seconds)</label>
       <input id="cfg-poll" type="number" min="10" value="30">
       <button class="btn-full btn-ghost" id="btn-test">Test connection &amp; show raw response</button>
@@ -170,7 +168,7 @@ const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 
 let cfg = {
-  baseUrl:"", token:"", pollSeconds:30,
+  baseUrl:"", pollSeconds:30,
   outWords:"Outside,Unknown,No Access,Not On Site"
 };
 let people = {}; // name -> {status, info1, time}
@@ -216,10 +214,6 @@ function relTime(ms){
   return d+"d ago";
 }
 
-function authHeaders(){
-  return cfg.token ? {"Authorization": "APIToken "+cfg.token} : {};
-}
-
 async function fetchLive(){
   if(!cfg.baseUrl){ setConn("err","No controller URL set — open Settings."); return; }
   if(polling) return;
@@ -227,7 +221,7 @@ async function fetchLive(){
   setConn("busy","Polling "+cfg.baseUrl+"…");
   try{
     const base = cfg.baseUrl.replace(/\/$/,"");
-    const sumRes = await fetch(base+"/api/v1/control/user/summary", {headers:authHeaders()});
+    const sumRes = await fetch(base+"/api/v1/control/user/summary");
     if(!sumRes.ok) throw new Error("HTTP "+sumRes.status+" on user/summary");
     const sumJson = await sumRes.json();
     const users = sumJson && sumJson.Users ? sumJson.Users : {};
@@ -235,7 +229,7 @@ async function fetchLive(){
 
     const states = await Promise.all(ids.map(async id=>{
       try{
-        const r = await fetch(base+"/api/v1/control/user/"+id+"/state", {headers:authHeaders()});
+        const r = await fetch(base+"/api/v1/control/user/"+id+"/state");
         if(!r.ok) return {id, error:"HTTP "+r.status};
         const j = await r.json();
         return {id, info1:j.Info1, state:j.State};
@@ -309,13 +303,11 @@ function renderBoard(){
 
 function fillSettingsForm(){
   $("#cfg-baseurl").value = cfg.baseUrl;
-  $("#cfg-token").value = cfg.token;
   $("#cfg-poll").value = cfg.pollSeconds;
   $("#cfg-outwords").value = cfg.outWords;
 }
 function readSettingsForm(){
   cfg.baseUrl = $("#cfg-baseurl").value.trim();
-  cfg.token = $("#cfg-token").value.trim();
   cfg.pollSeconds = Number($("#cfg-poll").value) || 30;
   cfg.outWords = $("#cfg-outwords").value.trim() || "Outside,Unknown,No Access,Not On Site";
   persist();
@@ -338,14 +330,14 @@ function bind(){
     out.innerHTML = `<div class="hint">Testing…</div>`;
     try{
       const base = cfg.baseUrl.replace(/\/$/,"");
-      const res = await fetch(base+"/api/v1/control/user/summary", {headers:authHeaders()});
+      const res = await fetch(base+"/api/v1/control/user/summary");
       const text = await res.text();
       let pretty = text, firstId = null;
       try{ const j = JSON.parse(text); pretty = JSON.stringify(j, null, 2); if(j.Users) firstId = Object.keys(j.Users)[0]; }catch(e){}
       let stateBlock = "";
       if(res.ok && firstId){
         try{
-          const r2 = await fetch(base+"/api/v1/control/user/"+firstId+"/state", {headers:authHeaders()});
+          const r2 = await fetch(base+"/api/v1/control/user/"+firstId+"/state");
           const t2 = await r2.text();
           let p2 = t2; try{ p2 = JSON.stringify(JSON.parse(t2), null, 2); }catch(e){}
           stateBlock = `<div class="hint" style="margin-top:8px">Sample /state response for the first user:</div><pre>${esc(p2.slice(0,3000))}</pre>`;
