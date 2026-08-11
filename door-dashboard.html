@@ -128,8 +128,9 @@
     <div class="card">
       <h2>Controller connection</h2>
       <div class="hint">Uses the Inception REST API: <code>GET /api/v1/control/user/summary</code> for the roster, then <code>GET /api/v1/control/user/{id}/state</code> per user for their current location (<code>Info1</code>). Create/edit an API user in Inception's Manage Users page, set its Web Page Profile to "REST Web API User", and generate a User API Token under Credentials there.</div>
+      <div class="hint"><b>Inception doesn't send CORS headers</b>, so this page can't call it directly — you'll get "Failed to fetch". Run the included <code>proxy.py</code> on a machine on the same network (<code>python3 proxy.py http://&lt;inception-ip&gt;</code>), open <code>http://localhost:8787/door-dashboard.html</code> instead of this file directly, and set the Controller base URL below to <code>http://localhost:8787</code> — the proxy forwards everything to the real controller.</div>
       <label>Controller base URL</label>
-      <input id="cfg-baseurl" placeholder="http://10.59.49.112">
+      <input id="cfg-baseurl" placeholder="http://localhost:8787">
       <label>API Token</label>
       <input id="cfg-token" placeholder="Paste the User API Token here">
       <label>Poll every (seconds)</label>
