@@ -45,15 +45,14 @@
   .pcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;border-left:4px solid var(--line);}
   .pcard.in{border-left-color:var(--good);}
   .pcard.out{border-left-color:var(--bad);}
-  .pcard.unknown{border-left-color:var(--muted);}
+  .pcard.seen{border-left-color:var(--amber);}
   .pcard .name{font-weight:700;font-size:15.5px;margin-bottom:4px;}
   .pcard .badge2{display:inline-block;font-family:"Archivo";font-weight:800;font-size:10.5px;letter-spacing:.5px;
     padding:3px 9px;border-radius:20px;text-transform:uppercase;margin-bottom:8px;}
   .pcard.in .badge2{background:rgba(55,201,138,.16);color:var(--good);}
   .pcard.out .badge2{background:rgba(233,85,107,.16);color:var(--bad);}
-  .pcard.unknown .badge2{background:rgba(151,160,173,.16);color:var(--muted);}
+  .pcard.seen .badge2{background:rgba(255,191,46,.16);color:var(--amber);}
   .pcard .meta{font-size:12px;color:var(--muted);line-height:1.5;}
-  .pcard .apb{display:inline-block;margin-top:6px;font-size:10.5px;color:var(--bad);font-weight:700;}
   .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:40px 0;}
   .overlay{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);}
   .overlay.hide{display:none;}
@@ -64,20 +63,26 @@
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
   .card h2{font-family:"Archivo";font-weight:700;font-size:12.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin:0 0 12px;}
   label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px;}
-  input,textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);
+  input,textarea,select{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);
     font-size:15px;padding:0 12px;font-family:inherit;margin-bottom:11px;outline:none;height:44px;}
   textarea{min-height:100px;padding:10px 12px;line-height:1.4;resize:vertical;}
-  input:focus,textarea:focus{border-color:var(--amber);}
+  input:focus,textarea:focus,select:focus{border-color:var(--amber);}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .btn-full{width:100%;min-height:44px;border:none;border-radius:10px;cursor:pointer;font-family:"Archivo";font-weight:700;
     font-size:13px;letter-spacing:.4px;text-transform:uppercase;}
   .btn-amber{background:var(--amber);color:#16181d;}
   .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
   .hint{font-size:12px;color:var(--muted);margin:-3px 0 12px;line-height:1.5;}
+  code{background:#0e1014;padding:1px 5px;border-radius:4px;font-size:11px;}
   pre{background:#0e1014;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;overflow:auto;
     max-height:280px;white-space:pre-wrap;word-break:break-word;color:#c9d1db;}
   .banner{background:rgba(233,85,107,.12);border:1px solid var(--bad);color:#ffc9d0;border-radius:10px;padding:10px 12px;
     font-size:12.5px;margin-bottom:12px;line-height:1.5;}
+  .doorlist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .doorrow{display:flex;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px;}
+  .doorrow input{margin:0;flex:1;height:38px;}
+  .doorrow select{margin:0;width:130px;height:38px;flex:0 0 auto;}
+  .doorrow button{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#16181d;font-weight:700;
     font-size:13px;padding:10px 18px;border-radius:30px;opacity:0;transition:opacity .25s;z-index:70;font-family:"Archivo";}
   .toast.show{opacity:1;}
@@ -87,7 +92,7 @@
 <div class="wrap">
   <header>
     <div class="badge">⏻</div>
-    <div><h1>Who's In / Who's Out</h1><p>Inception REST API · live user locations</p></div>
+    <div><h1>Who's In / Who's Out</h1><p>Inception review event log · reconstructed in/out</p></div>
     <div class="spacer"></div>
     <button class="iconbtn" id="btn-refresh" title="Refresh now">↻</button>
     <button class="iconbtn" id="btn-settings" title="Settings">⚙</button>
@@ -103,8 +108,8 @@
   <div class="summary">
     <div class="sum-card"><div class="n" id="s-in" style="color:var(--good)">0</div><div class="l">In</div></div>
     <div class="sum-card"><div class="n" id="s-out" style="color:var(--bad)">0</div><div class="l">Out</div></div>
-    <div class="sum-card"><div class="n" id="s-unknown" style="color:var(--muted)">0</div><div class="l">Unknown</div></div>
-    <div class="sum-card"><div class="n" id="s-total">0</div><div class="l">Total users</div></div>
+    <div class="sum-card"><div class="n" id="s-seen" style="color:var(--amber)">0</div><div class="l">Last seen only</div></div>
+    <div class="sum-card"><div class="n" id="s-total">0</div><div class="l">Total tracked</div></div>
   </div>
 
   <div class="toolbar">
@@ -112,7 +117,7 @@
     <button class="btn on" data-filter="all">All</button>
     <button class="btn" data-filter="in">In</button>
     <button class="btn" data-filter="out">Out</button>
-    <button class="btn" data-filter="unknown">Unknown</button>
+    <button class="btn" data-filter="seen">Last seen</button>
   </div>
 
   <div id="board" class="grid"></div>
@@ -127,34 +132,43 @@
 
     <div class="card">
       <h2>Controller connection</h2>
-      <div class="hint">Uses the Inception REST API: <code>GET /api/v1/control/user/summary</code> for the roster, then <code>GET /api/v1/control/user/{id}/state</code> per user for their current location (<code>Info1</code>).</div>
-      <div class="hint"><b>Inception doesn't send CORS headers</b>, so this page can't call it directly — you'll get "Failed to fetch". Run the included <code>proxy.py</code> on a machine on the same network: <code>python3 proxy.py http://&lt;inception-ip&gt;</code>, which will prompt for your Inception username/password in the terminal (never entered here — nothing sensitive is stored in this page). Then open <code>http://localhost:8787/door-dashboard.html</code> instead of this file directly, and set the Controller base URL below to <code>http://localhost:8787</code> — the proxy handles login and forwards everything to the real controller.</div>
-      <label>Controller base URL</label>
+      <div class="hint">Pulls the raw access event log via <code>GET /api/v1/review?categoryFilter=Access</code> through your local proxy (run <code>proxy.py</code> — see the project README/chat for setup). Point this at the proxy's address, not the Inception controller directly.</div>
+      <label>Proxy base URL</label>
       <input id="cfg-baseurl" placeholder="http://localhost:8787">
       <label>Poll every (seconds)</label>
       <input id="cfg-poll" type="number" min="10" value="30">
-      <button class="btn-full btn-ghost" id="btn-test">Test connection &amp; show raw response</button>
+      <button class="btn-full btn-ghost" id="btn-test">Test connection &amp; show recent events</button>
       <div id="test-result" style="margin-top:10px;"></div>
     </div>
 
     <div class="card">
-      <h2>How to read "location"</h2>
-      <div class="hint">Inception returns each user's location as free text in <code>Info1</code> (e.g. an Area name, or something like "Outside"/"Unknown"). Use Test Connection above to see real values from your system, then list which words mean the person is OUT below — anything else is treated as IN. A blank Info1 is always shown as Unknown.</div>
-      <label>Words meaning OUT (comma separated)</label>
-      <input id="cfg-outwords" placeholder="Outside,Unknown,No Access,Not On Site">
-      <div class="hint">Remember: side doors here only log entry (exit is a manual, unlogged button), so Inception's own location tracking can't see someone leaving that way either — a person may still show as "In" after they've physically left via one of those doors. The main door's toggle reader is the reliable one.</div>
+      <h2>Doors</h2>
+      <div class="hint"><b>Toggle</b>: a reader whose successive swipes alternate a person between IN and OUT (your main door). <b>Entry only</b>: a reader that only ever logs entry — exit is a manual, unlogged button (your other four doors). The door name here must match the "What" field from the event log exactly — use Test Connection above to check the real names. Unlisted doors default to entry-only.</div>
+      <div id="doorlist" class="doorlist"></div>
+      <button class="btn-full btn-ghost" id="btn-adddoor">+ Add door</button>
+    </div>
+
+    <div class="card">
+      <h2>Event classification</h2>
+      <div class="hint">Each event's "Description" text is checked against these word lists first; if none match, the door's role above (toggle/entry-only) decides. Comma separated, case-insensitive.</div>
+      <label>Words meaning the door was denied/ignored (skip these events entirely)</label>
+      <input id="cfg-ignorewords" placeholder="denied,invalid,forced,held open,tamper">
+      <label>Words meaning IN (optional override)</label>
+      <input id="cfg-inwords" placeholder="entry">
+      <label>Words meaning OUT (optional override)</label>
+      <input id="cfg-outwords" placeholder="exit">
     </div>
 
     <div class="card">
       <h2>Manual / test data</h2>
-      <div class="hint">Paste a JSON array to preview the board without a live connection, e.g. <code>[{"name":"Jane Smith","info1":"Outside","time":"2026-08-11T08:00:00"}]</code></div>
-      <textarea id="manual-json" placeholder='[{"name":"Jane Smith","info1":"Outside","time":"2026-08-11T08:00:00"}]'></textarea>
+      <div class="hint">Paste a JSON array of review events to preview the board without a live connection, e.g. <code>[{"Who":"Jane Smith","What":"Main Door","Description":"Access Granted","When":"2026-08-11T08:02:00Z"}]</code></div>
+      <textarea id="manual-json" placeholder='[{"Who":"Jane Smith","What":"Main Door","Description":"Access Granted","When":"2026-08-11T08:02:00Z"}]'></textarea>
       <button class="btn-full btn-ghost" id="btn-loadmanual">Load pasted data</button>
     </div>
 
     <div class="card">
       <h2>Reset</h2>
-      <button class="btn-full btn-ghost" id="btn-clear">Clear all tracked people</button>
+      <button class="btn-full btn-ghost" id="btn-clear">Clear tracked people &amp; re-sync from scratch</button>
     </div>
 
   </div>
@@ -163,15 +177,18 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const STORE_KEY = "door_dashboard_v2";
+const STORE_KEY = "door_dashboard_v3";
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 
 let cfg = {
   baseUrl:"", pollSeconds:30,
-  outWords:"Outside,Unknown,No Access,Not On Site"
+  doors:[{name:"Main Door",role:"toggle"}],
+  ignoreWords:"denied,invalid,forced,held open,tamper",
+  inWords:"", outWords:""
 };
-let people = {}; // name -> {status, info1, time}
+let people = {}; // name -> {status, door, time, doorRole}
+let cursor = null; // {id, referenceTime} of the last processed event
 let filter = "all";
 let pollTimer = null;
 let polling = false;
@@ -179,32 +196,30 @@ let polling = false;
 function load(){
   try{
     const raw = localStorage.getItem(STORE_KEY);
-    if(raw){ const o = JSON.parse(raw); if(o.cfg) cfg = Object.assign(cfg, o.cfg); if(o.people) people = o.people; }
+    if(raw){ const o = JSON.parse(raw);
+      if(o.cfg) cfg = Object.assign(cfg, o.cfg);
+      if(o.people) people = o.people;
+      if(o.cursor) cursor = o.cursor;
+    }
   }catch(e){}
 }
-function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({cfg, people})); }catch(e){} }
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({cfg, people, cursor})); }catch(e){} }
 function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
 function esc(s){ return (s||"").toString().replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 function matchWords(text, wordsCsv){
-  if(!text) return false;
+  if(!text || !wordsCsv) return false;
   const t = text.toString().toLowerCase();
-  return (wordsCsv||"").split(",").map(w=>w.trim().toLowerCase()).filter(Boolean).some(w=>t.includes(w));
+  return wordsCsv.split(",").map(w=>w.trim().toLowerCase()).filter(Boolean).some(w=>t.includes(w));
 }
-function classify(info1){
-  if(!info1 || !info1.toString().trim()) return "unknown";
-  if(matchWords(info1, cfg.outWords)) return "out";
-  return "in";
+function doorRole(doorName){
+  const d = cfg.doors.find(x=>x.name && doorName && x.name.toLowerCase()===doorName.toLowerCase());
+  return d ? d.role : "entry";
 }
-function toMillis(t){
-  if(t==null) return null;
-  if(typeof t === "number") return t > 1e12 ? t : t*1000; // seconds vs ms heuristic
-  const d = new Date(t).getTime();
-  return isNaN(d) ? null : d;
-}
-function relTime(ms){
-  if(ms==null) return "unknown time";
-  const diff = Math.max(0, Date.now()-ms);
+function relTime(iso){
+  const t = new Date(iso).getTime();
+  if(isNaN(t)) return "unknown time";
+  const diff = Math.max(0, Date.now()-t);
   const m = Math.floor(diff/60000);
   if(m < 1) return "just now";
   if(m < 60) return m+"m ago";
@@ -214,49 +229,61 @@ function relTime(ms){
   return d+"d ago";
 }
 
+function processEvents(events){
+  // events must be in ascending chronological order
+  for(const ev of events){
+    const who = ev.Who, what = ev.What, desc = ev.Description, when = ev.When;
+    if(!who || !when) continue;
+    if(matchWords(desc, cfg.ignoreWords)) continue;
+    const role = doorRole(what);
+    let direction = null;
+    if(matchWords(desc, cfg.outWords)) direction = "out";
+    else if(matchWords(desc, cfg.inWords)) direction = "in";
+    if(!direction){
+      if(role === "toggle"){
+        const prev = people[who];
+        direction = (prev && prev.status === "in") ? "out" : "in";
+      } else {
+        direction = "in";
+      }
+    }
+    const status = (role === "toggle") ? direction : (direction === "out" ? "out" : "seen");
+    people[who] = { status, door: what, time: when, doorRole: role };
+  }
+  if(events.length){
+    const last = events[events.length-1];
+    cursor = { id: last.ID, referenceTime: last.ReferenceTime };
+  }
+  persist();
+}
+
+function reviewUrl(base){
+  const qs = new URLSearchParams({ categoryFilter:"Access" });
+  if(cursor){
+    qs.set("dir","asc"); qs.set("referenceId",cursor.id); qs.set("referenceTime",cursor.referenceTime); qs.set("limit","500");
+  } else {
+    qs.set("dir","desc"); qs.set("limit","1000");
+  }
+  return base + "/api/v1/review?" + qs.toString();
+}
+
 async function fetchLive(){
-  if(!cfg.baseUrl){ setConn("err","No controller URL set — open Settings."); return; }
+  if(!cfg.baseUrl){ setConn("err","No proxy URL set — open Settings."); return; }
   if(polling) return;
   polling = true;
   setConn("busy","Polling "+cfg.baseUrl+"…");
   try{
     const base = cfg.baseUrl.replace(/\/$/,"");
-    const sumRes = await fetch(base+"/api/v1/control/user/summary");
-    if(!sumRes.ok) throw new Error("HTTP "+sumRes.status+" on user/summary");
-    const sumJson = await sumRes.json();
-    const users = sumJson && sumJson.Users ? sumJson.Users : {};
-    const ids = Object.keys(users);
-
-    const states = await Promise.all(ids.map(async id=>{
-      try{
-        const r = await fetch(base+"/api/v1/control/user/"+id+"/state");
-        if(!r.ok) return {id, error:"HTTP "+r.status};
-        const j = await r.json();
-        return {id, info1:j.Info1, state:j.State};
-      }catch(e){ return {id, error:e.message}; }
-    }));
-    const stateById = {}; states.forEach(s=>stateById[s.id]=s);
-
-    let errCount = 0;
-    for(const id of ids){
-      const entry = users[id];
-      const name = entry && entry.EntityInfo && entry.EntityInfo.Name;
-      if(!name) continue;
-      const st = stateById[id] || {};
-      if(st.error){ errCount++; continue; }
-      const antiPassbackViolated = !!(entry.CurrentState & 1);
-      people[name] = {
-        status: classify(st.info1),
-        info1: st.info1 || "",
-        time: toMillis(entry.LastStateChangeTime),
-        antiPassbackViolated
-      };
-    }
-    persist();
-    setConn("ok", "Connected · "+ids.length+" users · last poll "+new Date().toLocaleTimeString()+(errCount?(" · "+errCount+" state errors"):""));
+    const res = await fetch(reviewUrl(base));
+    if(!res.ok) throw new Error("HTTP "+res.status+" on review");
+    const json = await res.json();
+    let data = json.Data || [];
+    if(!cursor) data = data.slice().reverse(); // first load comes back desc; make it ascending
+    processEvents(data);
+    setConn("ok", "Connected · "+data.length+" new event(s) · last poll "+new Date().toLocaleTimeString());
     renderBoard();
   }catch(e){
-    setConn("err", "Connection failed: "+e.message+". If this is a CORS or certificate error, open "+cfg.baseUrl+" directly in a browser tab once to accept the certificate.");
+    setConn("err", "Connection failed: "+e.message+". Make sure proxy.py is running and the Proxy base URL above points at it.");
   } finally {
     polling = false;
   }
@@ -280,36 +307,57 @@ function renderBoard(){
     if(q && !n.toLowerCase().includes(q)) return false;
     if(filter==="all") return true;
     return people[n].status===filter;
-  }).sort((a,b)=> (people[b].time||0)-(people[a].time||0));
+  }).sort((a,b)=> new Date(people[b].time)-new Date(people[a].time));
 
-  let inC=0,outC=0,unC=0;
-  Object.values(people).forEach(p=>{ if(p.status==="in")inC++; else if(p.status==="out")outC++; else unC++; });
-  $("#s-in").textContent=inC; $("#s-out").textContent=outC; $("#s-unknown").textContent=unC; $("#s-total").textContent=Object.keys(people).length;
+  let inC=0,outC=0,seenC=0;
+  Object.values(people).forEach(p=>{ if(p.status==="in")inC++; else if(p.status==="out")outC++; else seenC++; });
+  $("#s-in").textContent=inC; $("#s-out").textContent=outC; $("#s-seen").textContent=seenC; $("#s-total").textContent=Object.keys(people).length;
 
   const board = $("#board");
-  if(!names.length){ board.innerHTML = `<div class="empty">No tracked people yet. Connect to your controller in Settings, or load manual/test data.</div>`; return; }
+  if(!names.length){ board.innerHTML = `<div class="empty">No tracked people yet. Connect to your proxy above, or load manual/test data in Settings.</div>`; return; }
   board.innerHTML = names.map(n=>{
     const p = people[n];
-    const label = p.status==="in" ? "In" : p.status==="out" ? "Out" : "Unknown";
-    const loc = p.info1 ? esc(p.info1) : "No location reported";
+    const label = p.status==="in" ? "In" : p.status==="out" ? "Out" : "Last seen";
+    const detail = p.doorRole==="toggle"
+      ? `Via ${esc(p.door)} · ${relTime(p.time)}`
+      : `Entered via ${esc(p.door)} · ${relTime(p.time)} (exit not tracked on this door)`;
     return `<div class="pcard ${p.status}">
       <div class="name">${esc(n)}</div>
       <div class="badge2">${label}</div>
-      <div class="meta">${loc} · ${relTime(p.time)}</div>
-      ${p.antiPassbackViolated?`<div class="apb">⚠ Anti-passback violated</div>`:""}
+      <div class="meta">${detail}</div>
     </div>`;
   }).join("");
+}
+
+function renderDoorList(){
+  $("#doorlist").innerHTML = cfg.doors.map((d,i)=>`
+    <div class="doorrow">
+      <input data-di="${i}" data-f="name" value="${esc(d.name)}" placeholder="Door name (must match the What field)">
+      <select data-di="${i}" data-f="role">
+        <option value="toggle" ${d.role==="toggle"?"selected":""}>Toggle (in/out)</option>
+        <option value="entry" ${d.role==="entry"?"selected":""}>Entry only</option>
+      </select>
+      <button data-deldoor="${i}">✕</button>
+    </div>`).join("");
+  $$("#doorlist input").forEach(inp=>inp.oninput=()=>{ cfg.doors[inp.dataset.di].name = inp.value; persist(); });
+  $$("#doorlist select").forEach(sel=>sel.onchange=()=>{ cfg.doors[sel.dataset.di].role = sel.value; persist(); });
+  $$("[data-deldoor]").forEach(b=>b.onclick=()=>{ cfg.doors.splice(Number(b.dataset.deldoor),1); persist(); renderDoorList(); });
 }
 
 function fillSettingsForm(){
   $("#cfg-baseurl").value = cfg.baseUrl;
   $("#cfg-poll").value = cfg.pollSeconds;
+  $("#cfg-ignorewords").value = cfg.ignoreWords;
+  $("#cfg-inwords").value = cfg.inWords;
   $("#cfg-outwords").value = cfg.outWords;
+  renderDoorList();
 }
 function readSettingsForm(){
   cfg.baseUrl = $("#cfg-baseurl").value.trim();
   cfg.pollSeconds = Number($("#cfg-poll").value) || 30;
-  cfg.outWords = $("#cfg-outwords").value.trim() || "Outside,Unknown,No Access,Not On Site";
+  cfg.ignoreWords = $("#cfg-ignorewords").value.trim();
+  cfg.inWords = $("#cfg-inwords").value.trim();
+  cfg.outWords = $("#cfg-outwords").value.trim();
   persist();
 }
 
@@ -323,6 +371,7 @@ function bind(){
     $$(".toolbar [data-filter]").forEach(x=>x.classList.toggle("on",x===b));
     renderBoard();
   });
+  $("#btn-adddoor").onclick = ()=>{ cfg.doors.push({name:"",role:"entry"}); persist(); renderDoorList(); };
 
   $("#btn-test").onclick = async ()=>{
     readSettingsForm();
@@ -330,23 +379,15 @@ function bind(){
     out.innerHTML = `<div class="hint">Testing…</div>`;
     try{
       const base = cfg.baseUrl.replace(/\/$/,"");
-      const res = await fetch(base+"/api/v1/control/user/summary");
+      const qs = new URLSearchParams({categoryFilter:"Access", dir:"desc", limit:"10"});
+      const res = await fetch(base+"/api/v1/review?"+qs.toString());
       const text = await res.text();
-      let pretty = text, firstId = null;
-      try{ const j = JSON.parse(text); pretty = JSON.stringify(j, null, 2); if(j.Users) firstId = Object.keys(j.Users)[0]; }catch(e){}
-      let stateBlock = "";
-      if(res.ok && firstId){
-        try{
-          const r2 = await fetch(base+"/api/v1/control/user/"+firstId+"/state");
-          const t2 = await r2.text();
-          let p2 = t2; try{ p2 = JSON.stringify(JSON.parse(t2), null, 2); }catch(e){}
-          stateBlock = `<div class="hint" style="margin-top:8px">Sample /state response for the first user:</div><pre>${esc(p2.slice(0,3000))}</pre>`;
-        }catch(e){}
-      }
+      let pretty = text;
+      try{ pretty = JSON.stringify(JSON.parse(text), null, 2); }catch(e){}
       out.innerHTML = (res.ok ? "" : `<div class="banner">HTTP ${res.status} ${res.statusText}</div>`) +
-        `<div class="hint">user/summary response:</div><pre>${esc(pretty.slice(0,4000))}</pre>` + stateBlock;
+        `<div class="hint">Most recent 10 access events:</div><pre>${esc(pretty.slice(0,6000))}</pre>`;
     }catch(e){
-      out.innerHTML = `<div class="banner">${esc(e.message)} — likely a CORS block, a self-signed certificate the browser hasn't trusted yet, or the controller isn't reachable from this device. Try opening ${esc(cfg.baseUrl)} directly in a tab first.</div>`;
+      out.innerHTML = `<div class="banner">${esc(e.message)} — make sure proxy.py is running and this URL points at it, not the Inception controller directly.</div>`;
     }
   };
 
@@ -355,19 +396,15 @@ function bind(){
     try{
       const arr = JSON.parse($("#manual-json").value);
       if(!Array.isArray(arr)) throw new Error("Not an array");
-      arr.forEach(row=>{
-        if(!row.name) return;
-        people[row.name] = { status: classify(row.info1), info1: row.info1||"", time: toMillis(row.time), antiPassbackViolated:false };
-      });
-      persist();
-      toast("Loaded "+arr.length+" record(s)");
+      processEvents(arr);
+      toast("Loaded "+arr.length+" event(s)");
       renderBoard();
     }catch(e){ toast("Couldn't parse that JSON"); }
   };
 
   $("#btn-clear").onclick = ()=>{
-    if(!confirm("Clear all tracked people?")) return;
-    people = {}; persist(); renderBoard(); toast("Cleared");
+    if(!confirm("Clear all tracked people and re-sync from scratch on next refresh?")) return;
+    people = {}; cursor = null; persist(); renderBoard(); toast("Cleared");
   };
 }
 
