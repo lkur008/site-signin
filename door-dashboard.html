@@ -192,13 +192,17 @@
 
     <div class="card">
       <h2>Event classification</h2>
-      <div class="hint">Each event's "Description" text is checked against these word lists first; if none match, the door's role above decides. Comma separated, case-insensitive.</div>
+      <div class="hint">Each event's "Description" text is checked against these word lists. Comma separated, case-insensitive.</div>
+      <label>Words meaning a real access grant (only matching events count)</label>
+      <input id="cfg-grantwords" placeholder="granted">
+      <div class="hint" style="margin-top:-7px;">Inception logs several rows per swipe — door lock/unlock, user-location-updated — alongside the actual grant, all sharing the same person and door. Without this filter each swipe gets processed more than once, which double-toggles In/Out and flips it backwards. Only rows matching this list count.</div>
       <label>Words meaning the door was denied/ignored (skip these events entirely)</label>
       <input id="cfg-ignorewords" placeholder="denied,invalid,forced,held open,tamper">
       <label>Words meaning IN (optional override)</label>
       <input id="cfg-inwords" placeholder="entry">
       <label>Words meaning OUT (optional override)</label>
       <input id="cfg-outwords" placeholder="exit">
+      <div class="hint" style="margin-top:-7px;">For a toggle door, if neither word list matches, the specific reader's location (e.g. "L1 Main Entry - Entry" vs "- Exit") is used when available before falling back to alternating In/Out per swipe.</div>
     </div>
 
     <div class="card">
@@ -220,7 +224,7 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const STORE_KEY = "door_dashboard_v4";
+const STORE_KEY = "door_dashboard_v5";
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 
@@ -235,6 +239,7 @@ const DEFAULT_DOORS = [
 let cfg = {
   baseUrl:"http://pi.local:8787", pollSeconds:30,
   doors: JSON.parse(JSON.stringify(DEFAULT_DOORS)),
+  grantWords:"granted",
   ignoreWords:"denied,invalid,forced,held open,tamper",
   inWords:"", outWords:""
 };
@@ -281,6 +286,15 @@ function matchWords(text, wordsCsv){
 function findDoor(rawName){
   return cfg.doors.find(d=>d.rawName && rawName && d.rawName.toLowerCase()===rawName.toLowerCase());
 }
+function whereDirection(where){
+  // Inception tags the specific reader on a toggle door via a "<door> - Entry" / "<door> - Exit"
+  // suffix on the grant event's Where field — trust that over guesswork when it's present.
+  if(!where) return null;
+  const w = where.trim().toLowerCase();
+  if(w.endsWith("- exit")) return "out";
+  if(w.endsWith("- entry")) return "in";
+  return null;
+}
 function relTime(iso){
   const t = new Date(iso).getTime();
   if(isNaN(t)) return "unknown time";
@@ -295,8 +309,11 @@ function relTime(iso){
 function processEvents(events){
   // events must be in ascending chronological order, and all from "today"
   for(const ev of events){
-    const who = ev.Who, what = ev.What, desc = ev.Description, when = ev.When;
+    const who = ev.Who, what = ev.What, desc = ev.Description, when = ev.When, where = ev.Where;
     if(!who || !when) continue;
+    // Inception logs several companion rows per swipe (door lock/unlock, user-location-updated) with
+    // the same Who/door — only the actual grant row should count, or every swipe double-toggles.
+    if(!matchWords(desc, cfg.grantWords)) continue;
     if(matchWords(desc, cfg.ignoreWords)) continue;
     const door = findDoor(what);
     const role = door ? door.role : "entry";
@@ -306,6 +323,7 @@ function processEvents(events){
     if(matchWords(desc, cfg.outWords)) direction = "out";
     else if(matchWords(desc, cfg.inWords)) direction = "in";
     if(role === "toggle"){
+      if(!direction) direction = whereDirection(where);
       if(!direction){
         const prev = people[who];
         direction = (prev && prev.presence === "in") ? "out" : "in";
@@ -457,6 +475,7 @@ function renderDoorList(){
 function fillSettingsForm(){
   $("#cfg-baseurl").value = cfg.baseUrl;
   $("#cfg-poll").value = cfg.pollSeconds;
+  $("#cfg-grantwords").value = cfg.grantWords;
   $("#cfg-ignorewords").value = cfg.ignoreWords;
   $("#cfg-inwords").value = cfg.inWords;
   $("#cfg-outwords").value = cfg.outWords;
@@ -465,6 +484,7 @@ function fillSettingsForm(){
 function readSettingsForm(){
   cfg.baseUrl = $("#cfg-baseurl").value.trim();
   cfg.pollSeconds = Number($("#cfg-poll").value) || 30;
+  cfg.grantWords = $("#cfg-grantwords").value.trim();
   cfg.ignoreWords = $("#cfg-ignorewords").value.trim();
   cfg.inWords = $("#cfg-inwords").value.trim();
   cfg.outWords = $("#cfg-outwords").value.trim();
