@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#16181d">
+<title>Who's In / Who's Out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#16181d; --panel:#1f232b; --panel-2:#262b34; --line:#333a45;
+    --ink:#f3f5f8; --muted:#97a0ad; --amber:#ffbf2e; --amber-deep:#e9a200;
+    --good:#37c98a; --bad:#e9556b; --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:"Hanken Grotesk",-apple-system,system-ui,sans-serif;
+    font-size:16px;line-height:1.45;padding:env(safe-area-inset-top) 0 40px;}
+  .wrap{max-width:900px;margin:0 auto;padding:18px 16px 0;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .badge{width:46px;height:46px;border-radius:12px;flex:0 0 auto;background:var(--amber);color:#16181d;
+    display:flex;align-items:center;justify-content:center;font-family:"Archivo";font-weight:800;font-size:20px;}
+  header h1{font-family:"Archivo";font-weight:800;font-size:20px;letter-spacing:.3px;margin:0;line-height:1;text-transform:uppercase;}
+  header p{margin:3px 0 0;color:var(--muted);font-size:12px;letter-spacing:.3px;}
+  .spacer{flex:1;}
+  .iconbtn{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);width:42px;height:42px;border-radius:12px;
+    font-size:17px;cursor:pointer;}
+  .status-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--muted);}
+  .status-bar b{color:var(--ink);}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto;}
+  .dot.ok{background:var(--good);} .dot.err{background:var(--bad);}
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .toolbar input[type=text]{flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    color:var(--ink);height:44px;padding:0 14px;font-size:15px;font-family:inherit;}
+  .toolbar .btn{height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--ink);font-family:"Archivo";font-weight:700;font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;}
+  .toolbar .btn.on{background:var(--amber);color:#16181d;border-color:var(--amber);}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px;}
+  .sum-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;}
+  .sum-card .n{font-family:"Archivo";font-weight:800;font-size:26px;}
+  .sum-card .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .pcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;border-left:4px solid var(--line);}
+  .pcard.in{border-left-color:var(--good);}
+  .pcard.out{border-left-color:var(--bad);}
+  .pcard.seen{border-left-color:var(--amber);}
+  .pcard .name{font-weight:700;font-size:15.5px;margin-bottom:4px;}
+  .pcard .badge2{display:inline-block;font-family:"Archivo";font-weight:800;font-size:10.5px;letter-spacing:.5px;
+    padding:3px 9px;border-radius:20px;text-transform:uppercase;margin-bottom:8px;}
+  .pcard.in .badge2{background:rgba(55,201,138,.16);color:var(--good);}
+  .pcard.out .badge2{background:rgba(233,85,107,.16);color:var(--bad);}
+  .pcard.seen .badge2{background:rgba(255,191,46,.16);color:var(--amber);}
+  .pcard .meta{font-size:12px;color:var(--muted);line-height:1.5;}
+  .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:40px 0;}
+  .overlay{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);}
+  .overlay.hide{display:none;}
+  .ov-bar{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line);background:var(--panel);}
+  .ov-x{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;}
+  .ov-ttl{flex:1;font-family:"Archivo";font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.5px;}
+  .ov-body{flex:1;overflow-y:auto;padding:16px;max-width:640px;margin:0 auto;width:100%;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+  .card h2{font-family:"Archivo";font-weight:700;font-size:12.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin:0 0 12px;}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px;}
+  input,textarea,select{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-size:15px;padding:0 12px;font-family:inherit;margin-bottom:11px;outline:none;height:44px;}
+  textarea{min-height:100px;padding:10px 12px;line-height:1.4;resize:vertical;}
+  input:focus,textarea:focus,select:focus{border-color:var(--amber);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .btn-full{width:100%;min-height:44px;border:none;border-radius:10px;cursor:pointer;font-family:"Archivo";font-weight:700;
+    font-size:13px;letter-spacing:.4px;text-transform:uppercase;}
+  .btn-amber{background:var(--amber);color:#16181d;}
+  .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
+  .hint{font-size:12px;color:var(--muted);margin:-3px 0 12px;line-height:1.5;}
+  pre{background:#0e1014;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;overflow:auto;
+    max-height:280px;white-space:pre-wrap;word-break:break-word;color:#c9d1db;}
+  .doorlist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .doorrow{display:flex;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px;}
+  .doorrow input{margin:0;flex:1;height:38px;}
+  .doorrow select{margin:0;width:130px;height:38px;flex:0 0 auto;}
+  .doorrow button{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+  .banner{background:rgba(233,85,107,.12);border:1px solid var(--bad);color:#ffc9d0;border-radius:10px;padding:10px 12px;
+    font-size:12.5px;margin-bottom:12px;line-height:1.5;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#16181d;font-weight:700;
+    font-size:13px;padding:10px 18px;border-radius:30px;opacity:0;transition:opacity .25s;z-index:70;font-family:"Archivo";}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">⏻</div>
+    <div><h1>Who's In / Who's Out</h1><p>Inner Range Inception door status</p></div>
+    <div class="spacer"></div>
+    <button class="iconbtn" id="btn-refresh" title="Refresh now">↻</button>
+    <button class="iconbtn" id="btn-settings" title="Settings">⚙</button>
+  </header>
+
+  <div class="status-bar">
+    <span class="dot" id="conn-dot"></span>
+    <span id="conn-text">Not connected — open Settings to configure your controller, or paste sample data to test.</span>
+    <div class="spacer"></div>
+    <span id="poll-text"></span>
+  </div>
+
+  <div class="summary">
+    <div class="sum-card"><div class="n" id="s-in" style="color:var(--good)">0</div><div class="l">In</div></div>
+    <div class="sum-card"><div class="n" id="s-out" style="color:var(--bad)">0</div><div class="l">Out</div></div>
+    <div class="sum-card"><div class="n" id="s-seen" style="color:var(--amber)">0</div><div class="l">Last seen only</div></div>
+    <div class="sum-card"><div class="n" id="s-total">0</div><div class="l">Total tracked</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search name…">
+    <button class="btn on" data-filter="all">All</button>
+    <button class="btn" data-filter="in">In</button>
+    <button class="btn" data-filter="out">Out</button>
+    <button class="btn" data-filter="seen">Last seen</button>
+  </div>
+
+  <div id="board" class="grid"></div>
+</div>
+
+<div id="settings-overlay" class="overlay hide">
+  <div class="ov-bar">
+    <button class="ov-x" id="settings-close">✕</button>
+    <div class="ov-ttl">Settings</div>
+  </div>
+  <div class="ov-body">
+
+    <div class="card">
+      <h2>Controller connection</h2>
+      <div class="hint">The Inception controller's local Web API is usually reached over HTTPS with a self-signed certificate. If the browser blocks the request, open the base URL directly in a new tab once and accept the certificate warning, then come back here.</div>
+      <label>Controller base URL</label>
+      <input id="cfg-baseurl" placeholder="https://192.168.1.50">
+      <label>Events/review endpoint path</label>
+      <input id="cfg-path" placeholder="/api/v1/review">
+      <div class="row2">
+        <div><label>Auth header name</label><input id="cfg-authname" placeholder="Authorization"></div>
+        <div><label>Auth header value</label><input id="cfg-authvalue" placeholder="APIKey xxxxxxxx"></div>
+      </div>
+      <label>Poll every (seconds)</label>
+      <input id="cfg-poll" type="number" min="10" value="30">
+      <button class="btn-full btn-ghost" id="btn-test">Test connection &amp; show raw response</button>
+      <div id="test-result" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Response field mapping</h2>
+      <div class="hint">Tell the dashboard where to find each value in the JSON your controller returns. Use the raw response above (Test connection) to check the real field names — these are just common guesses.</div>
+      <label>Path to the events array (leave blank if the response itself is the array; use dot notation e.g. "data.items")</label>
+      <input id="map-arraypath" placeholder="e.g. data">
+      <div class="row2">
+        <div><label>Person name field</label><input id="map-person" placeholder="e.g. cardholder"></div>
+        <div><label>Door name field</label><input id="map-door" placeholder="e.g. entrance"></div>
+      </div>
+      <div class="row2">
+        <div><label>Timestamp field</label><input id="map-time" placeholder="e.g. time"></div>
+        <div><label>Direction/type field (optional)</label><input id="map-dir" placeholder="e.g. type"></div>
+      </div>
+      <div class="row2">
+        <div><label>Words meaning IN (comma separated)</label><input id="map-inwords" placeholder="entry,granted,in"></div>
+        <div><label>Words meaning OUT (comma separated)</label><input id="map-outwords" placeholder="exit,out"></div>
+      </div>
+      <div class="hint">If the direction field is empty/not matched for an event, the dashboard falls back to each door's role below (toggle or entry-only).</div>
+    </div>
+
+    <div class="card">
+      <h2>Doors</h2>
+      <div class="hint"><b>Toggle</b>: a reader whose successive swipes alternate a person's status between IN and OUT (your main door). <b>Entry only</b>: a reader that only ever logs entry — exit is a manual, unlogged button (your other 4 doors). Unlisted doors default to entry-only.</div>
+      <div id="doorlist" class="doorlist"></div>
+      <button class="btn-full btn-ghost" id="btn-adddoor">+ Add door</button>
+    </div>
+
+    <div class="card">
+      <h2>Manual / test data</h2>
+      <div class="hint">Paste a JSON array of events (or a full API response, using the mapping above) to test the board without a live connection, or to import an exported log.</div>
+      <textarea id="manual-json" placeholder='[{"cardholder":"Jane Smith","entrance":"Main Door","time":"2026-08-11T08:02:00","type":"Access Granted"}]'></textarea>
+      <button class="btn-full btn-ghost" id="btn-loadmanual">Load pasted data</button>
+    </div>
+
+    <div class="card">
+      <h2>Reset</h2>
+      <button class="btn-full btn-ghost" id="btn-clear">Clear all tracked people &amp; history</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORE_KEY = "door_dashboard_v1";
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+
+let cfg = {
+  baseUrl:"", path:"/api/v1/review", authName:"Authorization", authValue:"",
+  pollSeconds:30,
+  map:{ arrayPath:"", person:"cardholder", door:"entrance", time:"time", dir:"type",
+        inWords:"entry,granted,in", outWords:"exit,out" },
+  doors:[{name:"Main Door",role:"toggle"}]
+};
+let people = {}; // name -> {status, door, time, doorRole}
+let filter = "all";
+let pollTimer = null;
+let lastPollOk = false;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){ const o = JSON.parse(raw); if(o.cfg) cfg = Object.assign(cfg, o.cfg, {map:Object.assign({},cfg.map,o.cfg.map||{})}); if(o.people) people = o.people; }
+  }catch(e){}
+}
+function persist(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({cfg, people})); }catch(e){}
+}
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+function esc(s){ return (s||"").toString().replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function getByPath(obj, path){
+  if(!path) return obj;
+  return path.split(".").reduce((o,k)=> (o==null?undefined:o[k]), obj);
+}
+function doorRole(doorName){
+  const d = cfg.doors.find(x=>x.name && doorName && x.name.toLowerCase()===doorName.toLowerCase());
+  return d ? d.role : "entry";
+}
+function matchWords(text, wordsCsv){
+  if(!text) return false;
+  const t = text.toString().toLowerCase();
+  return wordsCsv.split(",").map(w=>w.trim().toLowerCase()).filter(Boolean).some(w=>t.includes(w));
+}
+function relTime(iso){
+  const t = new Date(iso).getTime();
+  if(isNaN(t)) return iso;
+  const diff = Math.max(0, Date.now()-t);
+  const m = Math.floor(diff/60000);
+  if(m < 1) return "just now";
+  if(m < 60) return m+"m ago";
+  const h = Math.floor(m/60);
+  if(h < 24) return h+"h "+(m%60)+"m ago";
+  const d = Math.floor(h/24);
+  return d+"d ago";
+}
+
+function processEvents(rawEvents){
+  const events = rawEvents.map(ev=>({
+    person: getByPath(ev, cfg.map.person),
+    door: getByPath(ev, cfg.map.door),
+    time: getByPath(ev, cfg.map.time),
+    dirRaw: cfg.map.dir ? getByPath(ev, cfg.map.dir) : null
+  })).filter(e=>e.person && e.time)
+    .sort((a,b)=> new Date(a.time) - new Date(b.time));
+
+  for(const e of events){
+    const role = doorRole(e.door);
+    let direction = null;
+    if(e.dirRaw){
+      if(matchWords(e.dirRaw, cfg.map.inWords)) direction = "in";
+      else if(matchWords(e.dirRaw, cfg.map.outWords)) direction = "out";
+    }
+    if(!direction){
+      if(role === "toggle"){
+        const prev = people[e.person];
+        direction = (prev && prev.status === "in") ? "out" : "in";
+      } else {
+        direction = "in"; // entry-only door: we only ever know they came in
+      }
+    }
+    const status = (role === "toggle") ? direction : (direction === "out" ? "out" : "seen");
+    people[e.person] = { status, door: e.door, time: e.time, doorRole: role };
+  }
+  persist();
+}
+
+function extractArray(json){
+  const arr = getByPath(json, cfg.map.arrayPath);
+  if(Array.isArray(arr)) return arr;
+  if(Array.isArray(json)) return json;
+  return null;
+}
+
+async function fetchLive(){
+  if(!cfg.baseUrl){ setConn(false,"No controller URL set — open Settings."); return; }
+  setConn(null,"Polling "+cfg.baseUrl+"…");
+  try{
+    const headers = {};
+    if(cfg.authName && cfg.authValue) headers[cfg.authName] = cfg.authValue;
+    const res = await fetch(cfg.baseUrl.replace(/\/$/,"") + cfg.path, {headers});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const json = await res.json();
+    const arr = extractArray(json);
+    if(!arr) throw new Error("Couldn't find an events array — check the field-mapping array path in Settings.");
+    processEvents(arr);
+    setConn(true, "Connected · last poll "+new Date().toLocaleTimeString());
+    renderBoard();
+  }catch(e){
+    setConn(false, "Connection failed: "+e.message+". If this is a CORS or certificate error, open "+cfg.baseUrl+" directly in a browser tab once to accept the certificate, and confirm the controller's API allows requests from this page's origin.");
+  }
+}
+
+function setConn(ok, text){
+  lastPollOk = ok;
+  $("#conn-dot").className = "dot" + (ok===true?" ok":ok===false?" err":"");
+  $("#conn-text").textContent = text;
+}
+
+function schedulePoll(){
+  if(pollTimer) clearInterval(pollTimer);
+  const secs = Math.max(10, Number(cfg.pollSeconds)||30);
+  pollTimer = setInterval(fetchLive, secs*1000);
+  $("#poll-text").textContent = "Auto-refresh every "+secs+"s";
+}
+
+function renderBoard(){
+  const q = ($("#search").value||"").toLowerCase();
+  const names = Object.keys(people).filter(n=>{
+    if(q && !n.toLowerCase().includes(q)) return false;
+    if(filter==="all") return true;
+    return people[n].status===filter;
+  }).sort((a,b)=> new Date(people[b].time)-new Date(people[a].time));
+
+  let inC=0,outC=0,seenC=0;
+  Object.values(people).forEach(p=>{ if(p.status==="in")inC++; else if(p.status==="out")outC++; else seenC++; });
+  $("#s-in").textContent=inC; $("#s-out").textContent=outC; $("#s-seen").textContent=seenC; $("#s-total").textContent=Object.keys(people).length;
+
+  const board = $("#board");
+  if(!names.length){ board.innerHTML = `<div class="empty">No tracked people yet. Connect to your controller or load manual/test data in Settings.</div>`; return; }
+  board.innerHTML = names.map(n=>{
+    const p = people[n];
+    const label = p.status==="in" ? "In" : p.status==="out" ? "Out" : "Last seen";
+    const detail = p.doorRole==="toggle"
+      ? `Via ${esc(p.door)} · ${relTime(p.time)}`
+      : `Entered via ${esc(p.door)} · ${relTime(p.time)} (exit not tracked on this door)`;
+    return `<div class="pcard ${p.status}">
+      <div class="name">${esc(n)}</div>
+      <div class="badge2">${label}</div>
+      <div class="meta">${detail}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderDoorList(){
+  $("#doorlist").innerHTML = cfg.doors.map((d,i)=>`
+    <div class="doorrow">
+      <input data-di="${i}" data-f="name" value="${esc(d.name)}" placeholder="Door name (must match controller's name)">
+      <select data-di="${i}" data-f="role">
+        <option value="toggle" ${d.role==="toggle"?"selected":""}>Toggle (in/out)</option>
+        <option value="entry" ${d.role==="entry"?"selected":""}>Entry only</option>
+      </select>
+      <button data-deldoor="${i}">✕</button>
+    </div>`).join("");
+  $$("#doorlist input").forEach(inp=>inp.oninput=()=>{ cfg.doors[inp.dataset.di].name = inp.value; persist(); });
+  $$("#doorlist select").forEach(sel=>sel.onchange=()=>{ cfg.doors[sel.dataset.di].role = sel.value; persist(); });
+  $$("[data-deldoor]").forEach(b=>b.onclick=()=>{ cfg.doors.splice(Number(b.dataset.deldoor),1); persist(); renderDoorList(); });
+}
+
+function fillSettingsForm(){
+  $("#cfg-baseurl").value = cfg.baseUrl;
+  $("#cfg-path").value = cfg.path;
+  $("#cfg-authname").value = cfg.authName;
+  $("#cfg-authvalue").value = cfg.authValue;
+  $("#cfg-poll").value = cfg.pollSeconds;
+  $("#map-arraypath").value = cfg.map.arrayPath;
+  $("#map-person").value = cfg.map.person;
+  $("#map-door").value = cfg.map.door;
+  $("#map-time").value = cfg.map.time;
+  $("#map-dir").value = cfg.map.dir;
+  $("#map-inwords").value = cfg.map.inWords;
+  $("#map-outwords").value = cfg.map.outWords;
+  renderDoorList();
+}
+function readSettingsForm(){
+  cfg.baseUrl = $("#cfg-baseurl").value.trim();
+  cfg.path = $("#cfg-path").value.trim() || "/api/v1/review";
+  cfg.authName = $("#cfg-authname").value.trim() || "Authorization";
+  cfg.authValue = $("#cfg-authvalue").value.trim();
+  cfg.pollSeconds = Number($("#cfg-poll").value) || 30;
+  cfg.map.arrayPath = $("#map-arraypath").value.trim();
+  cfg.map.person = $("#map-person").value.trim() || "cardholder";
+  cfg.map.door = $("#map-door").value.trim() || "entrance";
+  cfg.map.time = $("#map-time").value.trim() || "time";
+  cfg.map.dir = $("#map-dir").value.trim();
+  cfg.map.inWords = $("#map-inwords").value.trim() || "entry,granted,in";
+  cfg.map.outWords = $("#map-outwords").value.trim() || "exit,out";
+  persist();
+}
+
+function bind(){
+  $("#btn-settings").onclick = ()=>{ fillSettingsForm(); $("#settings-overlay").classList.remove("hide"); };
+  $("#settings-close").onclick = ()=>{ readSettingsForm(); $("#settings-overlay").classList.add("hide"); schedulePoll(); renderBoard(); };
+  $("#btn-refresh").onclick = fetchLive;
+  $("#search").oninput = renderBoard;
+  $$(".toolbar [data-filter]").forEach(b=>b.onclick=()=>{
+    filter=b.dataset.filter;
+    $$(".toolbar [data-filter]").forEach(x=>x.classList.toggle("on",x===b));
+    renderBoard();
+  });
+  $("#btn-adddoor").onclick = ()=>{ cfg.doors.push({name:"",role:"entry"}); persist(); renderDoorList(); };
+
+  $("#btn-test").onclick = async ()=>{
+    readSettingsForm();
+    const out = $("#test-result");
+    out.innerHTML = `<div class="hint">Testing…</div>`;
+    try{
+      const headers = {};
+      if(cfg.authName && cfg.authValue) headers[cfg.authName] = cfg.authValue;
+      const res = await fetch(cfg.baseUrl.replace(/\/$/,"") + cfg.path, {headers});
+      const text = await res.text();
+      let pretty = text;
+      try{ pretty = JSON.stringify(JSON.parse(text), null, 2); }catch(e){}
+      out.innerHTML = (res.ok ? "" : `<div class="banner">HTTP ${res.status} ${res.statusText}</div>`) +
+        `<pre>${esc(pretty.slice(0,6000))}</pre>`;
+    }catch(e){
+      out.innerHTML = `<div class="banner">${esc(e.message)} — likely a CORS block, a self-signed certificate the browser hasn't trusted yet, or the controller isn't reachable from this device. Try opening ${esc(cfg.baseUrl)} directly in a tab first.</div>`;
+    }
+  };
+
+  $("#btn-loadmanual").onclick = ()=>{
+    readSettingsForm();
+    try{
+      const json = JSON.parse($("#manual-json").value);
+      const arr = extractArray(json) || (Array.isArray(json)?json:null);
+      if(!arr) throw new Error("Not an array");
+      processEvents(arr);
+      toast("Loaded "+arr.length+" event(s)");
+      renderBoard();
+    }catch(e){ toast("Couldn't parse that JSON"); }
+  };
+
+  $("#btn-clear").onclick = ()=>{
+    if(!confirm("Clear all tracked people and history?")) return;
+    people = {}; persist(); renderBoard(); toast("Cleared");
+  };
+}
+
+load();
+fillSettingsForm();
+renderDoorList();
+bind();
+renderBoard();
+schedulePoll();
+if(cfg.baseUrl) fetchLive();
+</script>
+</body>
+</html>
