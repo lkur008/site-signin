@@ -18,8 +18,8 @@
   html,body{margin:0;padding:0;}
   body{background:var(--bg);color:var(--ink);font-family:"Hanken Grotesk",-apple-system,system-ui,sans-serif;
     font-size:16px;line-height:1.45;padding:env(safe-area-inset-top) 0 40px;}
-  .wrap{max-width:900px;margin:0 auto;padding:18px 16px 0;}
-  header{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .wrap{max-width:960px;margin:0 auto;padding:18px 16px 0;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
   .badge{width:46px;height:46px;border-radius:12px;flex:0 0 auto;background:var(--amber);color:#16181d;
     display:flex;align-items:center;justify-content:center;font-family:"Archivo";font-weight:800;font-size:20px;}
   header h1{font-family:"Archivo";font-weight:800;font-size:20px;letter-spacing:.3px;margin:0;line-height:1;text-transform:uppercase;}
@@ -27,31 +27,41 @@
   .spacer{flex:1;}
   .iconbtn{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);width:42px;height:42px;border-radius:12px;
     font-size:17px;cursor:pointer;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .tabs button{flex:0 0 auto;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);border-radius:12px;
+    padding:10px 18px;font-family:"Archivo";font-weight:700;font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;}
+  .tabs button.on{background:var(--amber);color:#16181d;border-color:var(--amber);}
   .status-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
     border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--muted);}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto;}
   .dot.ok{background:var(--good);} .dot.err{background:var(--bad);} .dot.busy{background:var(--amber);}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px;}
+  .sum-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;}
+  .sum-card .n{font-family:"Archivo";font-weight:800;font-size:26px;}
+  .sum-card .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
   .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
   .toolbar input[type=text]{flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
     color:var(--ink);height:44px;padding:0 14px;font-size:15px;font-family:inherit;}
   .toolbar .btn{height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);
     color:var(--ink);font-family:"Archivo";font-weight:700;font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;}
   .toolbar .btn.on{background:var(--amber);color:#16181d;border-color:var(--amber);}
-  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px;}
-  .sum-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;}
-  .sum-card .n{font-family:"Archivo";font-weight:800;font-size:26px;}
-  .sum-card .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+  .print-btn{background:var(--amber);color:#16181d;border:none;}
+  .loc-group{margin-bottom:18px;}
+  .loc-group h3{font-family:"Archivo";font-weight:800;font-size:13.5px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--amber);margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);}
+  .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+  .prow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+  .prow .n{font-weight:700;font-size:14.5px;}
+  .prow .t{font-size:11px;color:var(--muted);margin-top:2px;}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
   .pcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;border-left:4px solid var(--line);}
   .pcard.in{border-left-color:var(--good);}
   .pcard.out{border-left-color:var(--bad);}
-  .pcard.seen{border-left-color:var(--amber);}
   .pcard .name{font-weight:700;font-size:15.5px;margin-bottom:4px;}
   .pcard .badge2{display:inline-block;font-family:"Archivo";font-weight:800;font-size:10.5px;letter-spacing:.5px;
     padding:3px 9px;border-radius:20px;text-transform:uppercase;margin-bottom:8px;}
   .pcard.in .badge2{background:rgba(55,201,138,.16);color:var(--good);}
   .pcard.out .badge2{background:rgba(233,85,107,.16);color:var(--bad);}
-  .pcard.seen .badge2{background:rgba(255,191,46,.16);color:var(--amber);}
   .pcard .meta{font-size:12px;color:var(--muted);line-height:1.5;}
   .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:40px 0;}
   .overlay{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);}
@@ -59,7 +69,7 @@
   .ov-bar{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line);background:var(--panel);}
   .ov-x{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;}
   .ov-ttl{flex:1;font-family:"Archivo";font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.5px;}
-  .ov-body{flex:1;overflow-y:auto;padding:16px;max-width:640px;margin:0 auto;width:100%;}
+  .ov-body{flex:1;overflow-y:auto;padding:16px;max-width:680px;margin:0 auto;width:100%;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
   .card h2{font-family:"Archivo";font-weight:700;font-size:12.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin:0 0 12px;}
   label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px;}
@@ -79,26 +89,50 @@
   .banner{background:rgba(233,85,107,.12);border:1px solid var(--bad);color:#ffc9d0;border-radius:10px;padding:10px 12px;
     font-size:12.5px;margin-bottom:12px;line-height:1.5;}
   .doorlist{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
-  .doorrow{display:flex;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px;}
-  .doorrow input{margin:0;flex:1;height:38px;}
-  .doorrow select{margin:0;width:130px;height:38px;flex:0 0 auto;}
+  .doorrow{display:grid;grid-template-columns:1fr 1fr 110px 100px 30px;gap:6px;align-items:center;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:10px;padding:8px;}
+  .doorrow input,.doorrow select{margin:0;height:38px;font-size:13px;}
   .doorrow button{flex:0 0 auto;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+  .doorrow-labels{display:grid;grid-template-columns:1fr 1fr 110px 100px 30px;gap:6px;font-size:10px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;padding:0 8px;}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#16181d;font-weight:700;
     font-size:13px;padding:10px 18px;border-radius:30px;opacity:0;transition:opacity .25s;z-index:70;font-family:"Archivo";}
   .toast.show{opacity:1;}
+  .print-header{display:none;}
+  @media print{
+    header, .tabs, .status-bar, .toolbar, #details-view, .no-print { display:none !important; }
+    .print-header{ display:block; margin-bottom:16px; }
+    .print-header h1{ font-family:"Archivo"; font-weight:800; font-size:20px; margin:0; text-transform:uppercase; }
+    .print-header p{ margin:4px 0 0; color:#555; font-size:12px; }
+    body{ background:#fff; color:#000; padding:0; }
+    .wrap{ max-width:100%; }
+    .loc-group h3{ color:#000; border-bottom-color:#000; }
+    .prow{ background:#fff; border:1px solid #999; break-inside:avoid; }
+    .prow .t{ color:#555; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="badge">⏻</div>
-    <div><h1>Who's In / Who's Out</h1><p>Inception review event log · reconstructed in/out</p></div>
+    <div><h1>Who's In / Who's Out</h1><p>Today's building occupancy</p></div>
     <div class="spacer"></div>
     <button class="iconbtn" id="btn-refresh" title="Refresh now">↻</button>
     <button class="iconbtn" id="btn-settings" title="Settings">⚙</button>
   </header>
 
-  <div class="status-bar">
+  <div class="print-header">
+    <h1>Who's In — <span id="print-date"></span></h1>
+    <p id="print-meta"></p>
+  </div>
+
+  <div class="tabs no-print">
+    <button data-tab="dashboard" class="on">Dashboard</button>
+    <button data-tab="details">Details</button>
+  </div>
+
+  <div class="status-bar no-print">
     <span class="dot" id="conn-dot"></span>
     <span id="conn-text">Not connected — open Settings and point this at the local proxy's URL.</span>
     <div class="spacer"></div>
@@ -106,21 +140,28 @@
   </div>
 
   <div class="summary">
-    <div class="sum-card"><div class="n" id="s-in" style="color:var(--good)">0</div><div class="l">In</div></div>
+    <div class="sum-card"><div class="n" id="s-in" style="color:var(--good)">0</div><div class="l">In today</div></div>
     <div class="sum-card"><div class="n" id="s-out" style="color:var(--bad)">0</div><div class="l">Out</div></div>
-    <div class="sum-card"><div class="n" id="s-seen" style="color:var(--amber)">0</div><div class="l">Last seen only</div></div>
     <div class="sum-card"><div class="n" id="s-total">0</div><div class="l">Total tracked</div></div>
   </div>
 
-  <div class="toolbar">
-    <input type="text" id="search" placeholder="Search name…">
-    <button class="btn on" data-filter="all">All</button>
-    <button class="btn" data-filter="in">In</button>
-    <button class="btn" data-filter="out">Out</button>
-    <button class="btn" data-filter="seen">Last seen</button>
+  <div id="dashboard-view">
+    <div class="toolbar no-print">
+      <input type="text" id="search-dash" placeholder="Search name…">
+      <button class="btn print-btn" id="btn-print">🖨 Print</button>
+    </div>
+    <div id="dash-board"></div>
   </div>
 
-  <div id="board" class="grid"></div>
+  <div id="details-view" style="display:none;">
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Search name…">
+      <button class="btn on" data-filter="all">All</button>
+      <button class="btn" data-filter="in">In</button>
+      <button class="btn" data-filter="out">Out</button>
+    </div>
+    <div id="board" class="grid"></div>
+  </div>
 </div>
 
 <div id="settings-overlay" class="overlay hide">
@@ -132,9 +173,9 @@
 
     <div class="card">
       <h2>Controller connection</h2>
-      <div class="hint">Pulls the raw access event log via <code>GET /api/v1/review?categoryFilter=Access</code> through your local proxy (run <code>proxy.py</code> — see the project README/chat for setup). Point this at the proxy's address, not the Inception controller directly.</div>
+      <div class="hint">Pulls the raw access event log via <code>GET /api/v1/review?categoryFilter=Access</code> through your local proxy (<code>proxy.py</code> running on the Pi). "Today" resets automatically at local midnight.</div>
       <label>Proxy base URL</label>
-      <input id="cfg-baseurl" placeholder="http://localhost:8787">
+      <input id="cfg-baseurl" placeholder="http://pi.local:8787">
       <label>Poll every (seconds)</label>
       <input id="cfg-poll" type="number" min="10" value="30">
       <button class="btn-full btn-ghost" id="btn-test">Test connection &amp; show recent events</button>
@@ -142,15 +183,16 @@
     </div>
 
     <div class="card">
-      <h2>Doors</h2>
-      <div class="hint"><b>Toggle</b>: a reader whose successive swipes alternate a person between IN and OUT (your main door). <b>Entry only</b>: a reader that only ever logs entry — exit is a manual, unlogged button (your other four doors). The door name here must match the "What" field from the event log exactly — use Test Connection above to check the real names. Unlisted doors default to entry-only.</div>
+      <h2>Doors &amp; locations</h2>
+      <div class="hint">"Door name" must match the raw <code>What</code> field from the Inception event log exactly (use Test Connection to check). "Display name" and "Location" are what staff see on the dashboard. <b>Toggle</b> = alternates In/Out (your main Entry Door — exit is only ever logged here). <b>Entry only</b> = only logs arrival at that location (exit unlogged); staff badging here are marked In at that Location, but only the toggle door can mark someone Out. Unlisted doors default to entry-only with no location label.</div>
+      <div class="doorrow-labels"><span>Door name (API)</span><span>Display name</span><span>Role</span><span>Location</span><span></span></div>
       <div id="doorlist" class="doorlist"></div>
       <button class="btn-full btn-ghost" id="btn-adddoor">+ Add door</button>
     </div>
 
     <div class="card">
       <h2>Event classification</h2>
-      <div class="hint">Each event's "Description" text is checked against these word lists first; if none match, the door's role above (toggle/entry-only) decides. Comma separated, case-insensitive.</div>
+      <div class="hint">Each event's "Description" text is checked against these word lists first; if none match, the door's role above decides. Comma separated, case-insensitive.</div>
       <label>Words meaning the door was denied/ignored (skip these events entirely)</label>
       <input id="cfg-ignorewords" placeholder="denied,invalid,forced,held open,tamper">
       <label>Words meaning IN (optional override)</label>
@@ -161,14 +203,15 @@
 
     <div class="card">
       <h2>Manual / test data</h2>
-      <div class="hint">Paste a JSON array of review events to preview the board without a live connection, e.g. <code>[{"Who":"Jane Smith","What":"Main Door","Description":"Access Granted","When":"2026-08-11T08:02:00Z"}]</code></div>
-      <textarea id="manual-json" placeholder='[{"Who":"Jane Smith","What":"Main Door","Description":"Access Granted","When":"2026-08-11T08:02:00Z"}]'></textarea>
+      <div class="hint">Paste a JSON array of review events to preview the board without a live connection, e.g. <code>[{"Who":"Jane Smith","What":"L1 Main Entry Maglock","Description":"Access Granted","When":"2026-08-11T08:02:00Z"}]</code></div>
+      <textarea id="manual-json" placeholder='[{"Who":"Jane Smith","What":"L1 Main Entry Maglock","Description":"Access Granted","When":"2026-08-11T08:02:00Z"}]'></textarea>
       <button class="btn-full btn-ghost" id="btn-loadmanual">Load pasted data</button>
     </div>
 
     <div class="card">
       <h2>Reset</h2>
-      <button class="btn-full btn-ghost" id="btn-clear">Clear tracked people &amp; re-sync from scratch</button>
+      <button class="btn-full btn-ghost" id="btn-clear">Clear tracked people &amp; re-sync today from scratch</button>
+      <button class="btn-full btn-ghost" id="btn-restoredefaults" style="margin-top:10px;">Restore default doors</button>
     </div>
 
   </div>
@@ -177,21 +220,42 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const STORE_KEY = "door_dashboard_v3";
+const STORE_KEY = "door_dashboard_v4";
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 
+const DEFAULT_DOORS = [
+  {rawName:"L1 Main Entry Maglock", displayName:"Entry Door", role:"toggle", location:""},
+  {rawName:"L1 Rear Entry Strike", displayName:"L1 Lift Side Entry", role:"entry", location:"Level 1"},
+  {rawName:"L1 Front Entry Strike", displayName:"L1 Carpark Side Entry", role:"entry", location:"Level 1"},
+  {rawName:"GF Front Entry Strike", displayName:"Lab Carpark Side Entry", role:"entry", location:"Lab"},
+  {rawName:"GF Rear Entry Strike", displayName:"Lab Lift Side Entry", role:"entry", location:"Lab"}
+];
+
 let cfg = {
-  baseUrl:"", pollSeconds:30,
-  doors:[{name:"Main Door",role:"toggle"}],
+  baseUrl:"http://pi.local:8787", pollSeconds:30,
+  doors: JSON.parse(JSON.stringify(DEFAULT_DOORS)),
   ignoreWords:"denied,invalid,forced,held open,tamper",
   inWords:"", outWords:""
 };
-let people = {}; // name -> {status, door, time, doorRole}
-let cursor = null; // {id, referenceTime} of the last processed event
+let people = {}; // name -> {presence:'in'|'out', location, time, door}
+let cursor = null; // {id, referenceTime} of the last processed event, within "today"
+let dayKey = null; // local date the current people/cursor state belongs to
+let tab = "dashboard";
 let filter = "all";
 let pollTimer = null;
 let polling = false;
+
+function todayKey(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function localMidnightISO(){
+  const d = new Date(); d.setHours(0,0,0,0);
+  const off = -d.getTimezoneOffset();
+  const sign = off>=0?"+":"-";
+  const pad = n=>String(Math.abs(n)).padStart(2,"0");
+  const hh=pad(Math.floor(Math.abs(off)/60)), mm=pad(Math.abs(off)%60);
+  const y=d.getFullYear(), mo=pad(d.getMonth()+1), da=pad(d.getDate());
+  return `${y}-${mo}-${da}T00:00:00${sign}${hh}:${mm}`;
+}
 
 function load(){
   try{
@@ -200,10 +264,12 @@ function load(){
       if(o.cfg) cfg = Object.assign(cfg, o.cfg);
       if(o.people) people = o.people;
       if(o.cursor) cursor = o.cursor;
+      if(o.dayKey) dayKey = o.dayKey;
     }
   }catch(e){}
+  if(dayKey !== todayKey()){ people = {}; cursor = null; dayKey = todayKey(); persist(); }
 }
-function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({cfg, people, cursor})); }catch(e){} }
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({cfg, people, cursor, dayKey})); }catch(e){} }
 function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
 function esc(s){ return (s||"").toString().replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
@@ -212,9 +278,8 @@ function matchWords(text, wordsCsv){
   const t = text.toString().toLowerCase();
   return wordsCsv.split(",").map(w=>w.trim().toLowerCase()).filter(Boolean).some(w=>t.includes(w));
 }
-function doorRole(doorName){
-  const d = cfg.doors.find(x=>x.name && doorName && x.name.toLowerCase()===doorName.toLowerCase());
-  return d ? d.role : "entry";
+function findDoor(rawName){
+  return cfg.doors.find(d=>d.rawName && rawName && d.rawName.toLowerCase()===rawName.toLowerCase());
 }
 function relTime(iso){
   const t = new Date(iso).getTime();
@@ -224,31 +289,36 @@ function relTime(iso){
   if(m < 1) return "just now";
   if(m < 60) return m+"m ago";
   const h = Math.floor(m/60);
-  if(h < 24) return h+"h "+(m%60)+"m ago";
-  const d = Math.floor(h/24);
-  return d+"d ago";
+  return h+"h "+(m%60)+"m ago";
 }
 
 function processEvents(events){
-  // events must be in ascending chronological order
+  // events must be in ascending chronological order, and all from "today"
   for(const ev of events){
     const who = ev.Who, what = ev.What, desc = ev.Description, when = ev.When;
     if(!who || !when) continue;
     if(matchWords(desc, cfg.ignoreWords)) continue;
-    const role = doorRole(what);
+    const door = findDoor(what);
+    const role = door ? door.role : "entry";
+    const displayName = door ? door.displayName : what;
+    const locLabel = door ? door.location : "";
     let direction = null;
     if(matchWords(desc, cfg.outWords)) direction = "out";
     else if(matchWords(desc, cfg.inWords)) direction = "in";
-    if(!direction){
-      if(role === "toggle"){
+    if(role === "toggle"){
+      if(!direction){
         const prev = people[who];
-        direction = (prev && prev.status === "in") ? "out" : "in";
-      } else {
-        direction = "in";
+        direction = (prev && prev.presence === "in") ? "out" : "in";
       }
+      people[who] = {
+        presence: direction,
+        location: direction === "in" ? (locLabel || "Entry") : "",
+        time: when, door: displayName
+      };
+    } else {
+      // entry-only: badging here means they're on-site, regardless of prior state
+      people[who] = { presence: "in", location: locLabel || displayName, time: when, door: displayName };
     }
-    const status = (role === "toggle") ? direction : (direction === "out" ? "out" : "seen");
-    people[who] = { status, door: what, time: when, doorRole: role };
   }
   if(events.length){
     const last = events[events.length-1];
@@ -257,31 +327,43 @@ function processEvents(events){
   persist();
 }
 
-function reviewUrl(base){
-  const qs = new URLSearchParams({ categoryFilter:"Access" });
-  if(cursor){
-    qs.set("dir","asc"); qs.set("referenceId",cursor.id); qs.set("referenceTime",cursor.referenceTime); qs.set("limit","500");
-  } else {
-    qs.set("dir","desc"); qs.set("limit","1000");
-  }
-  return base + "/api/v1/review?" + qs.toString();
+async function fetchJson(url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("HTTP "+res.status+" on "+url);
+  return res.json();
 }
 
 async function fetchLive(){
   if(!cfg.baseUrl){ setConn("err","No proxy URL set — open Settings."); return; }
   if(polling) return;
+  if(dayKey !== todayKey()){ people = {}; cursor = null; dayKey = todayKey(); persist(); }
   polling = true;
   setConn("busy","Polling "+cfg.baseUrl+"…");
   try{
     const base = cfg.baseUrl.replace(/\/$/,"");
-    const res = await fetch(reviewUrl(base));
-    if(!res.ok) throw new Error("HTTP "+res.status+" on review");
-    const json = await res.json();
-    let data = json.Data || [];
-    if(!cursor) data = data.slice().reverse(); // first load comes back desc; make it ascending
-    processEvents(data);
-    setConn("ok", "Connected · "+data.length+" new event(s) · last poll "+new Date().toLocaleTimeString());
-    renderBoard();
+    let newCount = 0;
+    if(!cursor){
+      // (re)sync from local midnight, paginating if needed
+      let offset = 0, all = [];
+      while(true){
+        const qs = new URLSearchParams({categoryFilter:"Access", dir:"asc", start:localMidnightISO(), limit:"1000", offset:String(offset)});
+        const json = await fetchJson(base+"/api/v1/review?"+qs.toString());
+        const batch = json.Data || [];
+        all = all.concat(batch);
+        if(batch.length < 1000 || offset > 20000) break;
+        offset += 1000;
+      }
+      processEvents(all);
+      newCount = all.length;
+    } else {
+      const qs = new URLSearchParams({categoryFilter:"Access", dir:"asc", referenceId:cursor.id, referenceTime:cursor.referenceTime, limit:"500"});
+      const json = await fetchJson(base+"/api/v1/review?"+qs.toString());
+      const batch = json.Data || [];
+      processEvents(batch);
+      newCount = batch.length;
+    }
+    setConn("ok", "Connected · "+newCount+" new event(s) · last poll "+new Date().toLocaleTimeString());
+    renderAll();
   }catch(e){
     setConn("err", "Connection failed: "+e.message+". Make sure proxy.py is running and the Proxy base URL above points at it.");
   } finally {
@@ -301,30 +383,56 @@ function schedulePoll(){
   $("#poll-text").textContent = "Auto-refresh every "+secs+"s";
 }
 
-function renderBoard(){
+function renderAll(){
+  const inC = Object.values(people).filter(p=>p.presence==="in").length;
+  const outC = Object.values(people).filter(p=>p.presence==="out").length;
+  $("#s-in").textContent=inC; $("#s-out").textContent=outC; $("#s-total").textContent=Object.keys(people).length;
+  renderDashboard();
+  renderDetails();
+}
+
+function renderDashboard(){
+  const q = ($("#search-dash").value||"").toLowerCase();
+  const now = new Date();
+  $("#print-date").textContent = now.toLocaleDateString(undefined,{weekday:"long", year:"numeric", month:"long", day:"numeric"});
+  $("#print-meta").textContent = "Printed "+now.toLocaleTimeString();
+
+  const inPeople = Object.entries(people).filter(([n,p])=> p.presence==="in" && (!q || n.toLowerCase().includes(q)));
+  const groups = {};
+  inPeople.forEach(([n,p])=>{
+    const g = p.location || "Entry / Lobby";
+    (groups[g] = groups[g]||[]).push([n,p]);
+  });
+  const groupNames = Object.keys(groups).sort();
+  const el = $("#dash-board");
+  if(!groupNames.length){ el.innerHTML = `<div class="empty">Nobody marked in today yet.</div>`; return; }
+  el.innerHTML = groupNames.map(g=>{
+    const rows = groups[g].sort((a,b)=>a[0].localeCompare(b[0]));
+    return `<div class="loc-group">
+      <h3>${esc(g)} (${rows.length})</h3>
+      <div class="plist">${rows.map(([n,p])=>`<div class="prow"><div class="n">${esc(n)}</div><div class="t">via ${esc(p.door)} · ${relTime(p.time)}</div></div>`).join("")}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderDetails(){
   const q = ($("#search").value||"").toLowerCase();
   const names = Object.keys(people).filter(n=>{
     if(q && !n.toLowerCase().includes(q)) return false;
     if(filter==="all") return true;
-    return people[n].status===filter;
+    return people[n].presence===filter;
   }).sort((a,b)=> new Date(people[b].time)-new Date(people[a].time));
 
-  let inC=0,outC=0,seenC=0;
-  Object.values(people).forEach(p=>{ if(p.status==="in")inC++; else if(p.status==="out")outC++; else seenC++; });
-  $("#s-in").textContent=inC; $("#s-out").textContent=outC; $("#s-seen").textContent=seenC; $("#s-total").textContent=Object.keys(people).length;
-
   const board = $("#board");
-  if(!names.length){ board.innerHTML = `<div class="empty">No tracked people yet. Connect to your proxy above, or load manual/test data in Settings.</div>`; return; }
+  if(!names.length){ board.innerHTML = `<div class="empty">No tracked people yet today. Connect to your proxy, or load manual/test data in Settings.</div>`; return; }
   board.innerHTML = names.map(n=>{
     const p = people[n];
-    const label = p.status==="in" ? "In" : p.status==="out" ? "Out" : "Last seen";
-    const detail = p.doorRole==="toggle"
-      ? `Via ${esc(p.door)} · ${relTime(p.time)}`
-      : `Entered via ${esc(p.door)} · ${relTime(p.time)} (exit not tracked on this door)`;
-    return `<div class="pcard ${p.status}">
+    const label = p.presence==="in" ? "In" : "Out";
+    const loc = p.location ? ` · ${esc(p.location)}` : "";
+    return `<div class="pcard ${p.presence}">
       <div class="name">${esc(n)}</div>
       <div class="badge2">${label}</div>
-      <div class="meta">${detail}</div>
+      <div class="meta">Via ${esc(p.door)}${loc} · ${relTime(p.time)}</div>
     </div>`;
   }).join("");
 }
@@ -332,14 +440,16 @@ function renderBoard(){
 function renderDoorList(){
   $("#doorlist").innerHTML = cfg.doors.map((d,i)=>`
     <div class="doorrow">
-      <input data-di="${i}" data-f="name" value="${esc(d.name)}" placeholder="Door name (must match the What field)">
+      <input data-di="${i}" data-f="rawName" value="${esc(d.rawName)}" placeholder="Exact API door name">
+      <input data-di="${i}" data-f="displayName" value="${esc(d.displayName)}" placeholder="Display name">
       <select data-di="${i}" data-f="role">
-        <option value="toggle" ${d.role==="toggle"?"selected":""}>Toggle (in/out)</option>
+        <option value="toggle" ${d.role==="toggle"?"selected":""}>Toggle</option>
         <option value="entry" ${d.role==="entry"?"selected":""}>Entry only</option>
       </select>
+      <input data-di="${i}" data-f="location" value="${esc(d.location)}" placeholder="Location">
       <button data-deldoor="${i}">✕</button>
     </div>`).join("");
-  $$("#doorlist input").forEach(inp=>inp.oninput=()=>{ cfg.doors[inp.dataset.di].name = inp.value; persist(); });
+  $$("#doorlist input").forEach(inp=>inp.oninput=()=>{ cfg.doors[inp.dataset.di][inp.dataset.f] = inp.value; persist(); });
   $$("#doorlist select").forEach(sel=>sel.onchange=()=>{ cfg.doors[sel.dataset.di].role = sel.value; persist(); });
   $$("[data-deldoor]").forEach(b=>b.onclick=()=>{ cfg.doors.splice(Number(b.dataset.deldoor),1); persist(); renderDoorList(); });
 }
@@ -361,17 +471,31 @@ function readSettingsForm(){
   persist();
 }
 
+function switchTab(t){
+  tab = t;
+  $$(".tabs [data-tab]").forEach(b=>b.classList.toggle("on", b.dataset.tab===t));
+  $("#dashboard-view").style.display = t==="dashboard" ? "" : "none";
+  $("#details-view").style.display = t==="details" ? "" : "none";
+}
+
 function bind(){
   $("#btn-settings").onclick = ()=>{ fillSettingsForm(); $("#settings-overlay").classList.remove("hide"); };
-  $("#settings-close").onclick = ()=>{ readSettingsForm(); $("#settings-overlay").classList.add("hide"); schedulePoll(); renderBoard(); };
+  $("#settings-close").onclick = ()=>{ readSettingsForm(); $("#settings-overlay").classList.add("hide"); schedulePoll(); renderAll(); };
   $("#btn-refresh").onclick = fetchLive;
-  $("#search").oninput = renderBoard;
+  $("#btn-print").onclick = ()=> window.print();
+  $("#search-dash").oninput = renderDashboard;
+  $("#search").oninput = renderDetails;
+  $$(".tabs [data-tab]").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
   $$(".toolbar [data-filter]").forEach(b=>b.onclick=()=>{
     filter=b.dataset.filter;
     $$(".toolbar [data-filter]").forEach(x=>x.classList.toggle("on",x===b));
-    renderBoard();
+    renderDetails();
   });
-  $("#btn-adddoor").onclick = ()=>{ cfg.doors.push({name:"",role:"entry"}); persist(); renderDoorList(); };
+  $("#btn-adddoor").onclick = ()=>{ cfg.doors.push({rawName:"",displayName:"",role:"entry",location:""}); persist(); renderDoorList(); };
+  $("#btn-restoredefaults").onclick = ()=>{
+    if(!confirm("Replace the current door list with the defaults?")) return;
+    cfg.doors = JSON.parse(JSON.stringify(DEFAULT_DOORS)); persist(); renderDoorList(); toast("Doors reset to defaults");
+  };
 
   $("#btn-test").onclick = async ()=>{
     readSettingsForm();
@@ -398,20 +522,21 @@ function bind(){
       if(!Array.isArray(arr)) throw new Error("Not an array");
       processEvents(arr);
       toast("Loaded "+arr.length+" event(s)");
-      renderBoard();
+      renderAll();
     }catch(e){ toast("Couldn't parse that JSON"); }
   };
 
   $("#btn-clear").onclick = ()=>{
-    if(!confirm("Clear all tracked people and re-sync from scratch on next refresh?")) return;
-    people = {}; cursor = null; persist(); renderBoard(); toast("Cleared");
+    if(!confirm("Clear all tracked people and re-sync today from scratch on next refresh?")) return;
+    people = {}; cursor = null; persist(); renderAll(); toast("Cleared");
   };
 }
 
 load();
 fillSettingsForm();
 bind();
-renderBoard();
+switchTab("dashboard");
+renderAll();
 schedulePoll();
 if(cfg.baseUrl) fetchLive();
 </script>
