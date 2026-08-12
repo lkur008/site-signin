@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f5f6f8">
-<title>Who's In / Who's Out</title>
+<title>SAMI, Seven Hills</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -50,11 +50,13 @@
   .loc-group h3{font-family:"Archivo";font-weight:800;font-size:13.5px;letter-spacing:.6px;text-transform:uppercase;
     color:var(--amber-deep);margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);}
   .plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
-  .prow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+  .prow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;}
+  .prow:hover{border-color:var(--amber);}
   .prow .n{font-weight:700;font-size:14.5px;}
   .prow .t{font-size:11px;color:var(--muted);margin-top:2px;}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
-  .pcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;border-left:4px solid var(--line);}
+  .pcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;border-left:4px solid var(--line);cursor:pointer;}
+  .pcard:hover{border-color:var(--amber);}
   .pcard.in{border-left-color:var(--good);}
   .pcard.out{border-left-color:var(--bad);}
   .pcard .name{font-weight:700;font-size:15.5px;margin-bottom:4px;}
@@ -64,6 +66,12 @@
   .pcard.out .badge2{background:rgba(233,85,107,.16);color:var(--bad);}
   .pcard .meta{font-size:12px;color:var(--muted);line-height:1.5;}
   .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:40px 0;}
+  .hist-day{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+  .hist-day h3{font-family:"Archivo";font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px;color:var(--amber-deep);}
+  .hist-day .summary-line{font-size:13.5px;margin-bottom:4px;}
+  .hist-taps{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .hist-tap{background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:11.5px;color:var(--muted);}
+  .hist-tap.in{color:var(--good);} .hist-tap.out{color:var(--bad);}
   .overlay{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);}
   .overlay.hide{display:none;}
   .ov-bar{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line);background:var(--panel);}
@@ -116,14 +124,14 @@
 <div class="wrap">
   <header>
     <div class="badge">⏻</div>
-    <div><h1>Who's In / Who's Out</h1><p>Today's building occupancy</p></div>
+    <div><h1>SAMI, Seven Hills</h1><p>Today's building occupancy</p></div>
     <div class="spacer"></div>
     <button class="iconbtn" id="btn-refresh" title="Refresh now">↻</button>
     <button class="iconbtn" id="btn-settings" title="Settings">⚙</button>
   </header>
 
   <div class="print-header">
-    <h1>Who's In — <span id="print-date"></span></h1>
+    <h1>SAMI, Seven Hills — Who's In — <span id="print-date"></span></h1>
     <p id="print-meta"></p>
   </div>
 
@@ -221,6 +229,20 @@
   </div>
 </div>
 
+<div id="person-overlay" class="overlay hide">
+  <div class="ov-bar">
+    <button class="ov-x" id="person-close">✕</button>
+    <div class="ov-ttl" id="person-title">Person</div>
+  </div>
+  <div class="ov-body">
+    <div class="toolbar" style="margin-bottom:16px;">
+      <button class="btn on" data-range="7">Last 7 days</button>
+      <button class="btn" data-range="30">Last 30 days</button>
+    </div>
+    <div id="person-history"><div class="hint">Loading…</div></div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -250,10 +272,12 @@ let tab = "dashboard";
 let filter = "all";
 let pollTimer = null;
 let polling = false;
+let currentPersonName = null;
 
-function todayKey(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
-function localMidnightISO(){
-  const d = new Date(); d.setHours(0,0,0,0);
+function todayKey(){ return dayKeyOf(new Date()); }
+function dayKeyOf(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function localMidnightISO(base){
+  const d = base ? new Date(base) : new Date(); d.setHours(0,0,0,0);
   const off = -d.getTimezoneOffset();
   const sign = off>=0?"+":"-";
   const pad = n=>String(Math.abs(n)).padStart(2,"0");
@@ -337,6 +361,9 @@ function processEvents(events){
     const wasIn = prev && prev.presence === "in";
     let totalMs = prev ? (prev.totalMs || 0) : 0;
     let sessionStart = prev ? prev.sessionStart : null;
+    // first door/time seen today for this person, kept across every later event today
+    const firstDoor = prev ? prev.firstDoor : displayName;
+    const firstDoorTime = prev ? prev.firstDoorTime : when;
     if(role === "toggle"){
       if(!direction) direction = whereDirection(where);
       if(!direction) direction = wasIn ? "out" : "in";
@@ -349,12 +376,12 @@ function processEvents(events){
       people[who] = {
         presence: direction,
         location: direction === "in" ? (locLabel || "Entry") : "",
-        time: when, door: displayName, totalMs, sessionStart
+        time: when, door: displayName, totalMs, sessionStart, firstDoor, firstDoorTime
       };
     } else {
       // entry-only: badging here means they're on-site, regardless of prior state
       if(!wasIn) sessionStart = when;
-      people[who] = { presence: "in", location: locLabel || displayName, time: when, door: displayName, totalMs, sessionStart };
+      people[who] = { presence: "in", location: locLabel || displayName, time: when, door: displayName, totalMs, sessionStart, firstDoor, firstDoorTime };
     }
   }
   if(events.length){
@@ -362,6 +389,87 @@ function processEvents(events){
     cursor = { id: last.ID, referenceTime: last.ReferenceTime };
   }
   persist();
+}
+
+// Replays one person's already-filtered, ascending, single-day grant events into an arrival/
+// departure/duration summary — the same rules as processEvents, scoped to just that day.
+function summarizeDayForPerson(events){
+  let totalMs = 0, sessionStart = null, firstDoor = null, firstTime = null, lastDoor = null, lastTime = null;
+  const taps = [];
+  for(const ev of events){
+    const door = findDoor(ev.What);
+    const role = door ? door.role : "entry";
+    const displayName = door ? door.displayName : ev.What;
+    let direction = null;
+    if(matchWords(ev.Description, cfg.outWords)) direction = "out";
+    else if(matchWords(ev.Description, cfg.inWords)) direction = "in";
+    if(role === "toggle"){
+      if(!direction) direction = whereDirection(ev.Where);
+      if(!direction) direction = sessionStart ? "out" : "in";
+      if(direction === "in"){ if(!sessionStart) sessionStart = ev.When; }
+      else { if(sessionStart){ totalMs += new Date(ev.When) - new Date(sessionStart); } sessionStart = null; }
+    } else {
+      direction = "in";
+      if(!sessionStart) sessionStart = ev.When;
+    }
+    if(!firstDoor){ firstDoor = displayName; firstTime = ev.When; }
+    lastDoor = displayName; lastTime = ev.When;
+    taps.push({ door: displayName, time: ev.When, direction });
+  }
+  return { firstDoor, firstTime, lastDoor, lastTime, totalMs, stillIn: !!sessionStart, taps };
+}
+
+async function fetchPersonHistory(name, days){
+  const base = cfg.baseUrl.replace(/\/$/,"");
+  const start = new Date(); start.setDate(start.getDate() - (days-1));
+  let offset = 0, all = [];
+  while(true){
+    const qs = new URLSearchParams({categoryFilter:"Access", dir:"asc", start:localMidnightISO(start), limit:"1000", offset:String(offset)});
+    const json = await fetchJson(base+"/api/v1/review?"+qs.toString());
+    const batch = json.Data || [];
+    all = all.concat(batch);
+    if(batch.length < 1000 || offset > 30000) break;
+    offset += 1000;
+  }
+  return all.filter(ev => ev.Who === name && matchWords(ev.Description, cfg.grantWords) && !matchWords(ev.Description, cfg.ignoreWords));
+}
+
+async function openPersonHistory(name){
+  currentPersonName = name;
+  $("#person-title").textContent = name;
+  $("#person-overlay").classList.remove("hide");
+  $$("#person-overlay [data-range]").forEach(b=>b.classList.toggle("on", b.dataset.range==="7"));
+  await loadPersonHistory(name, 7);
+}
+
+async function loadPersonHistory(name, days){
+  const el = $("#person-history");
+  el.innerHTML = `<div class="hint">Loading…</div>`;
+  if(!cfg.baseUrl){ el.innerHTML = `<div class="banner">No proxy URL set — open Settings first.</div>`; return; }
+  try{
+    const events = await fetchPersonHistory(name, days);
+    const byDay = {};
+    events.forEach(ev=>{
+      const k = dayKeyOf(new Date(ev.When));
+      (byDay[k] = byDay[k]||[]).push(ev);
+    });
+    const dayKeys = Object.keys(byDay).sort().reverse();
+    if(!dayKeys.length){ el.innerHTML = `<div class="empty">No badge activity for ${esc(name)} in this range.</div>`; return; }
+    el.innerHTML = dayKeys.map(k=>{
+      const dayEvents = byDay[k].sort((a,b)=> new Date(a.When)-new Date(b.When));
+      const s = summarizeDayForPerson(dayEvents);
+      const dateLabel = new Date(dayEvents[0].When).toLocaleDateString(undefined,{weekday:"long", year:"numeric", month:"long", day:"numeric"});
+      const durLine = s.stillIn ? `${formatDuration(s.totalMs)} logged, still in as of last swipe that day` : `${formatDuration(s.totalMs)} total`;
+      return `<div class="hist-day">
+        <h3>${esc(dateLabel)}</h3>
+        <div class="summary-line">In via <b>${esc(s.firstDoor)}</b> at ${new Date(s.firstTime).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}</div>
+        <div class="summary-line">Last via <b>${esc(s.lastDoor)}</b> at ${new Date(s.lastTime).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})} · ${durLine}</div>
+        <div class="hist-taps">${s.taps.map(t=>`<span class="hist-tap ${t.direction}">${esc(t.door)} · ${new Date(t.time).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}</span>`).join("")}</div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    el.innerHTML = `<div class="banner">${esc(e.message)} — couldn't load history.</div>`;
+  }
 }
 
 async function fetchJson(url){
@@ -447,7 +555,11 @@ function renderDashboard(){
     const rows = groups[g].sort((a,b)=>a[0].localeCompare(b[0]));
     return `<div class="loc-group">
       <h3>${esc(g)} (${rows.length})</h3>
-      <div class="plist">${rows.map(([n,p])=>`<div class="prow"><div class="n">${esc(n)}</div><div class="t">via ${esc(p.door)} · ${formatDuration(liveDayTotalMs(p))} today · ${relTime(p.time)}</div></div>`).join("")}</div>
+      <div class="plist">${rows.map(([n,p])=>`<div class="prow" data-person="${esc(n)}">
+        <div class="n">${esc(n)}</div>
+        <div class="t">In via ${esc(p.firstDoor)} · ${formatDuration(liveDayTotalMs(p))} today</div>
+        <div class="t">Last via ${esc(p.door)} · ${relTime(p.time)} · At ${esc(p.location||"Entry / Lobby")}</div>
+      </div>`).join("")}</div>
     </div>`;
   }).join("");
 }
@@ -465,11 +577,11 @@ function renderDetails(){
   board.innerHTML = names.map(n=>{
     const p = people[n];
     const label = p.presence==="in" ? "In" : "Out";
-    const loc = p.location ? ` · ${esc(p.location)}` : "";
-    return `<div class="pcard ${p.presence}">
+    return `<div class="pcard ${p.presence}" data-person="${esc(n)}">
       <div class="name">${esc(n)}</div>
       <div class="badge2">${label}</div>
-      <div class="meta">Via ${esc(p.door)}${loc} · ${formatDuration(liveDayTotalMs(p))} today · ${relTime(p.time)}</div>
+      <div class="meta">In via ${esc(p.firstDoor)} · ${formatDuration(liveDayTotalMs(p))} today</div>
+      <div class="meta">Last via ${esc(p.door)} · ${relTime(p.time)} · At ${esc(p.location||"Entry / Lobby")}</div>
     </div>`;
   }).join("");
 }
@@ -529,6 +641,20 @@ function bind(){
     filter=b.dataset.filter;
     $$(".toolbar [data-filter]").forEach(x=>x.classList.toggle("on",x===b));
     renderDetails();
+  });
+
+  $("#dash-board").addEventListener("click", e=>{
+    const row = e.target.closest("[data-person]");
+    if(row) openPersonHistory(row.dataset.person);
+  });
+  $("#board").addEventListener("click", e=>{
+    const row = e.target.closest("[data-person]");
+    if(row) openPersonHistory(row.dataset.person);
+  });
+  $("#person-close").onclick = ()=>{ $("#person-overlay").classList.add("hide"); currentPersonName = null; };
+  $$("#person-overlay [data-range]").forEach(b=>b.onclick=()=>{
+    $$("#person-overlay [data-range]").forEach(x=>x.classList.toggle("on", x===b));
+    if(currentPersonName) loadPersonHistory(currentPersonName, Number(b.dataset.range));
   });
   $("#btn-adddoor").onclick = ()=>{ cfg.doors.push({rawName:"",displayName:"",role:"entry",location:""}); persist(); renderDoorList(); };
   $("#btn-restoredefaults").onclick = ()=>{
