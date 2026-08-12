@@ -235,6 +235,7 @@
     <div class="ov-ttl" id="person-title">Person</div>
   </div>
   <div class="ov-body">
+    <div id="person-status" style="margin-bottom:14px;"></div>
     <div class="toolbar" style="margin-bottom:16px;">
       <button class="btn on" data-range="7">Last 7 days</button>
       <button class="btn" data-range="30">Last 30 days</button>
@@ -275,7 +276,11 @@ let polling = false;
 let currentPersonName = null;
 
 function todayKey(){ return dayKeyOf(new Date()); }
-function dayKeyOf(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function dayKeyOf(d){
+  // zero-padded so keys sort correctly as plain strings (e.g. "2026-08-09" < "2026-08-11")
+  const pad = n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
 function localMidnightISO(base){
   const d = base ? new Date(base) : new Date(); d.setHours(0,0,0,0);
   const off = -d.getTimezoneOffset();
@@ -439,7 +444,48 @@ async function openPersonHistory(name){
   $("#person-title").textContent = name;
   $("#person-overlay").classList.remove("hide");
   $$("#person-overlay [data-range]").forEach(b=>b.classList.toggle("on", b.dataset.range==="7"));
+  renderPersonStatus(name);
   await loadPersonHistory(name, 7);
+}
+
+// The badge log only knows what it saw — someone who tailgates in/out without badging leaves no
+// event to reconstruct, so the computed status can be wrong. This lets a human correct it in place;
+// it holds until their next real badge event naturally overwrites the whole record.
+function setManualPresence(name, presence){
+  const p = people[name];
+  if(!p) return;
+  if(presence === "out"){
+    if(p.sessionStart) p.totalMs = (p.totalMs||0) + (Date.now() - new Date(p.sessionStart).getTime());
+    p.sessionStart = null;
+    p.location = "";
+  } else {
+    if(p.presence !== "in" || !p.sessionStart) p.sessionStart = new Date().toISOString();
+    if(!p.location) p.location = "Entry";
+  }
+  p.presence = presence;
+  p.manualOverride = true;
+  p.manualOverrideAt = new Date().toISOString();
+  persist();
+  renderAll();
+  renderPersonStatus(name);
+  toast(`${name} marked ${presence === "in" ? "In" : "Out"}`);
+}
+
+function renderPersonStatus(name){
+  const p = people[name];
+  const el = $("#person-status");
+  if(!p){ el.innerHTML = ""; return; }
+  const label = p.presence === "in" ? "In" : "Out";
+  const note = p.manualOverride ? ` · manually corrected ${relTime(p.manualOverrideAt)}` : "";
+  el.innerHTML = `<div class="card" style="margin-bottom:0;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <span class="badge2" style="margin:0;color:${p.presence==="in"?"var(--good)":"var(--bad)"};background:${p.presence==="in"?"rgba(55,201,138,.16)":"rgba(233,85,107,.16)"};">${label}</span>
+    <span class="hint" style="margin:0;">Badge log says ${label}${esc(note)}. Wrong (e.g. tailgated without badging)?</span>
+    <div class="spacer"></div>
+    <button class="btn ${p.presence==='in'?'on':''}" id="mark-in-btn">Mark In</button>
+    <button class="btn ${p.presence==='out'?'on':''}" id="mark-out-btn">Mark Out</button>
+  </div>`;
+  $("#mark-in-btn").onclick = ()=> setManualPresence(name, "in");
+  $("#mark-out-btn").onclick = ()=> setManualPresence(name, "out");
 }
 
 async function loadPersonHistory(name, days){
@@ -558,7 +604,7 @@ function renderDashboard(){
       <div class="plist">${rows.map(([n,p])=>`<div class="prow" data-person="${esc(n)}">
         <div class="n">${esc(n)}</div>
         <div class="t">In via ${esc(p.firstDoor)} · ${formatDuration(liveDayTotalMs(p))} today</div>
-        <div class="t">Last via ${esc(p.door)} · ${relTime(p.time)} · At ${esc(p.location||"Entry / Lobby")}</div>
+        <div class="t">Last via ${esc(p.door)} · ${relTime(p.time)} · At ${esc(p.location||"Entry / Lobby")}${p.manualOverride ? " · corrected" : ""}</div>
       </div>`).join("")}</div>
     </div>`;
   }).join("");
@@ -581,7 +627,7 @@ function renderDetails(){
       <div class="name">${esc(n)}</div>
       <div class="badge2">${label}</div>
       <div class="meta">In via ${esc(p.firstDoor)} · ${formatDuration(liveDayTotalMs(p))} today</div>
-      <div class="meta">Last via ${esc(p.door)} · ${relTime(p.time)} · At ${esc(p.location||"Entry / Lobby")}</div>
+      <div class="meta">Last via ${esc(p.door)} · ${relTime(p.time)} · At ${esc(p.location||"Entry / Lobby")}${p.manualOverride ? " · corrected" : ""}</div>
     </div>`;
   }).join("");
 }
